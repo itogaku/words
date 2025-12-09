@@ -1,0 +1,12 @@
+body {
+    font-family: Arial;
+    margin: 20px;
+}
+.hidden {
+    display: none;
+}
+table, td {
+    border: 1px solid #aaa;
+    border-collapse: collapse;
+    padding: 4px;
+}
