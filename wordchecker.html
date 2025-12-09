@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>英単語テスト</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 20px;
+}
+.hidden {
+    display: none;
+}
+table, td {
+    border: 1px solid #aaa;
+    border-collapse: collapse;
+    padding: 4px;
+}
+</style>
+
+</head>
+<body>
+<header>
+    <h2>英単語テスト</h2>
+    <nav>
+        <button onclick="showPage('quiz')">出題</button>
+        <button onclick="showPage('list')">一覧</button>
+        <button onclick="toggleWrongOnlyMode()">不正解のみ出題</button>
+        <button onclick="resetProgress()">進捗リセット</button>
+    </nav>
+</header>
+
+<main>
+    <!-- 出題画面 -->
+    <section id="quiz" class="page">
+        <p id="meaning">ここに意味が出ます</p>
+        <input id="answerInput" type="text" placeholder="英単語入力">
+        <button onclick="checkAnswer()">回答！</button>
+        <p id="result"></p>
+    </section>
+
+    <!-- 一覧画面 -->
+    <section id="list" class="page hidden">
+        <h3>単語リスト</h3>
+        <select id="filter" onchange="renderList()">
+            <option value="all">全て</option>
+            <option value="correct">正解済み</option>
+            <option value="wrong">不正解</option>
+            <option value="unanswered">未出題</option>
+        </select>
+        <table id="wordTable"></table>
+    </section>
+</main>
+
+<script>
+// ===== 単語データ（words.js） =====
+const words = [
+  {"word": "a", "meaning": "一つの；ある"},
+  {"word": "about", "meaning": "〜について"},
+  {"word": "act", "meaning": "行動する"},
+  {"word": "afternoon", "meaning": "午後"},
+  {"word": "again", "meaning": "再び"},
+  {"word": "air", "meaning": "空気"},
+  {"word": "airplane", "meaning": "飛行機"},
+  {"word": "all", "meaning": "すべて"},
+  {"word": "also", "meaning": "〜もまた"},
+  {"word": "am", "meaning": "be動詞（一人称）"},
+  {"word": "America", "meaning": "アメリカ"},
+  {"word": "an", "meaning": "一つの（母音の前）"},
+  {"word": "and", "meaning": "と、そして"},
+  {"word": "angry", "meaning": "怒って"},
+  {"word": "animal", "meaning": "動物"},
+  {"word": "apple", "meaning": "りんご"},
+  {"word": "April", "meaning": "4月"},
+  {"word": "are", "meaning": "be動詞（複数/二人称）"},
+  {"word": "arm", "meaning": "腕"},
+  {"word": "around", "meaning": "〜のまわりに"},
+  {"word": "art", "meaning": "美術、芸術"},
+  {"word": "ask", "meaning": "たずねる、頼む"},
+  {"word": "August", "meaning": "8月"},
+  {"word": "aunt", "meaning": "おば"},
+  {"word": "Australia", "meaning": "オーストラリア"},
+
+  {"word": "baby", "meaning": "赤ちゃん"},
+  {"word": "back", "meaning": "後ろ、背中"},
+  {"word": "bad", "meaning": "悪い"},
+  {"word": "bag", "meaning": "かばん"},
+  {"word": "ball", "meaning": "ボール"},
+  {"word": "banana", "meaning": "バナナ"},
+  {"word": "baseball", "meaning": "野球"},
+  {"word": "basketball", "meaning": "バスケットボール"},
+  {"word": "be", "meaning": "〜である、いる"},
+  {"word": "beach", "meaning": "浜、海岸"},
+  {"word": "beautiful", "meaning": "美しい"},
+  {"word": "because", "meaning": "なぜなら"},
+  {"word": "bed", "meaning": "ベッド"},
+  {"word": "bedroom", "meaning": "寝室"},
+  {"word": "been", "meaning": "beの過去分詞"},
+  {"word": "before", "meaning": "〜の前に"},
+  {"word": "begin", "meaning": "始める"},
+  {"word": "behind", "meaning": "〜の後ろに"},
+  {"word": "believe", "meaning": "信じる"},
+  {"word": "bell", "meaning": "ベル"},
+  {"word": "best", "meaning": "最もよい"},
+  {"word": "better", "meaning": "よりよい"},
+  {"word": "big", "meaning": "大きい"},
+  {"word": "bike", "meaning": "自転車"},
+
+  {"word": "cake", "meaning": "ケーキ"},
+  {"word": "came", "meaning": "comeの過去形"},
+  {"word": "camera", "meaning": "カメラ"},
+  {"word": "can", "meaning": "〜できる"},
+  {"word": "cannot", "meaning": "〜できない"},
+  {"word": "car", "meaning": "車"},
+  {"word": "cat", "meaning": "ネコ"},
+  {"word": "catch", "meaning": "つかまえる"},
+  {"word": "CD", "meaning": "コンパクトディスク"},
+  {"word": "change", "meaning": "変える；着がえる"},
+  {"word": "chicken", "meaning": "ニワトリ、鶏肉"},
+  {"word": "Chinese", "meaning": "中国の；中国人"},
+  {"word": "city", "meaning": "都市、街"},
+  {"word": "class", "meaning": "クラス、授業"},
+  {"word": "clean", "meaning": "掃除する"},
+  {"word": "close", "meaning": "閉める、閉まる"},
+  {"word": "cloudy", "meaning": "曇った"},
+  {"word": "club", "meaning": "クラブ、部"},
+  {"word": "cold", "meaning": "寒い、冷たい"},
+  {"word": "color", "meaning": "色"},
+  {"word": "comic", "meaning": "漫画"},
+  {"word": "computer", "meaning": "コンピュータ"},
+  {"word": "cook", "meaning": "料理する"},
+  {"word": "cousin", "meaning": "いとこ"},
+  {"word": "crayon", "meaning": "クレヨン"},
+  {"word": "cry", "meaning": "泣く"},
+  {"word": "curry", "meaning": "カレー"},
+  {"word": "cut", "meaning": "切る"},
+  {"word": "cute", "meaning": "かわいい"},
+
+  {"word": "dad", "meaning": "お父さん"},
+  {"word": "dance", "meaning": "ダンスする"},
+  {"word": "date", "meaning": "日付"},
+  {"word": "daughter", "meaning": "娘"},
+  {"word": "day", "meaning": "日、昼間"},
+  {"word": "dear", "meaning": "親愛なる（手紙）"}
+];
+
+
+// ========= main.js 統合部分 =========
+let progress = {}; 
+let current = null;
+let wrongOnlyMode = false;
+
+function loadData() {
+    const saved = localStorage.getItem("progress");
+    if (saved) progress = JSON.parse(saved);
+    renderQuestion();
+}
+
+function getNextWord() {
+    const candidates = words.filter(w => {
+        const state = progress[w.word];
+        return wrongOnlyMode ? state === "wrong" : state !== "correct";
+    });
+    if (!candidates.length) return null;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function renderQuestion() {
+    current = getNextWord();
+    if (!current) {
+        if (!wrongOnlyMode) {
+            wrongOnlyMode = true;
+            alert("全問題出題 → 不正解だけ出題モードに切替");
+            current = getNextWord();
+        }
+        if (!current) {
+            document.getElementById("meaning").textContent = "学習完了！";
+            return;
+        }
+    }
+    document.getElementById("meaning").textContent = current.meaning;
+    document.getElementById("answerInput").value = "";
+    document.getElementById("result").textContent = "";
+}
+
+function checkAnswer() {
+    if (!current) return;
+    const input = answerInput.value.trim().toLowerCase();
+
+    if (input === current.word.toLowerCase()) {
+        progress[current.word] = "correct";
+        result.textContent = "正解！";
+    } else {
+        progress[current.word] = "wrong";
+        result.textContent = `不正解！答え: ${current.word}`;
+    }
+    localStorage.setItem("progress", JSON.stringify(progress));
+    setTimeout(renderQuestion, 800);
+}
+
+function renderList() {
+    const filter = document.getElementById("filter").value;
+    const table = document.getElementById("wordTable");
+    table.innerHTML = "<tr><th>単語</th><th>意味</th><th>状態</th><th>操作</th></tr>";
+
+    words.forEach(w => {
+        const state = progress[w.word] || "unanswered";
+        if (filter !== "all" && filter !== state) return;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${w.word}</td>
+          <td>${w.meaning}</td>
+          <td>${state}</td>
+          <td><button onclick="toggleState('${w.word}')">変更</button></td>
+        `;
+        table.appendChild(row);
+    });
+}
+
+function toggleState(word) {
+    const s = progress[word];
+    if (!s) progress[word] = "correct";
+    else if (s === "correct") progress[word] = "wrong";
+    else delete progress[word];
+
+    localStorage.setItem("progress", JSON.stringify(progress));
+    renderList();
+}
+
+function toggleWrongOnlyMode() {
+    wrongOnlyMode = !wrongOnlyMode;
+    alert(wrongOnlyMode ? "不正解のみ出題 ON" : "通常モード");
+    renderQuestion();
+}
+
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    if (id === "list") renderList();
+}
+
+function resetProgress() {
+    if (!confirm("進捗リセットしますか？")) return;
+    progress = {};
+    localStorage.setItem("progress", JSON.stringify(progress));
+    wrongOnlyMode = false;
+    renderQuestion();
+    renderList();
+}
+
+window.addEventListener("DOMContentLoaded", loadData);
+</script>
+
+</body>
+</html>
