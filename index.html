@@ -17,6 +17,22 @@ table, td {
     border-collapse: collapse;
     padding: 4px;
 }
+
+#keyboard {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+#keyboard button {
+  padding: 12px 0;
+  font-size: 18px;
+}
+
+.key-wide {
+  grid-column: span 2;
+}
 </style>
 
 </head>
@@ -36,6 +52,8 @@ table, td {
     <section id="quiz" class="page">
         <p id="meaning">ここに意味が出ます</p>
         <input id="answerInput" type="text" placeholder="英単語入力">
+        <input id="answerInput" type="text" readonly placeholder="英単語入力">
+        <div id="keyboard"></div>
         <button onclick="checkAnswer()">回答！</button>
         <p id="result"></p>
     </section>
@@ -524,10 +542,61 @@ function resetProgress() {
 }
 
 window.addEventListener("DOMContentLoaded", loadData);
+
+let isUpper = false;
+
+const keyboard = document.getElementById("keyboard");
+const input = document.getElementById("answerInput");
+
+function buildKeyboard() {
+  keyboard.innerHTML = "";
+
+  // a-z
+  for (let i = 0; i < 26; i++) {
+    const ch = String.fromCharCode(97 + i);
+    const btn = document.createElement("button");
+    btn.textContent = isUpper ? ch.toUpperCase() : ch;
+    btn.onclick = () => addChar(btn.textContent);
+    keyboard.appendChild(btn);
+  }
+
+  // Shift
+  const shift = document.createElement("button");
+  shift.textContent = "Shift";
+  shift.className = "key-wide";
+  shift.onclick = toggleCase;
+  keyboard.appendChild(shift);
+
+  // Backspace
+  const back = document.createElement("button");
+  back.textContent = "⌫";
+  back.className = "key-wide";
+  back.onclick = backspace;
+  keyboard.appendChild(back);
+}
+
+function addChar(c) {
+  input.value += c;
+}
+
+function backspace() {
+  input.value = input.value.slice(0, -1);
+}
+
+function toggleCase() {
+  isUpper = !isUpper;
+  buildKeyboard();
+}
+
+// 初期化
+buildKeyboard();
+
+    
 </script>
 
 </body>
 </html>
+
 
 
 
