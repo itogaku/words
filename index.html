@@ -476,7 +476,7 @@ function renderQuestion() {
 
 function checkAnswer() {
     if (!current) return;
-    const input = answerInput.value.trim().toLowerCase();
+    const input = answerInput.value.trim();
 
     if (input === current.word.toLowerCase()) {
         progress[current.word] = "correct";
@@ -595,6 +595,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
