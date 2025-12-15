@@ -5,19 +5,23 @@
 <title>英単語テスト</title>
 
 <style>
+/* ===== 既存 ===== */
 body {
     font-family: Arial;
     margin: 20px;
 }
+
 .hidden {
     display: none;
 }
+
 table, td {
     border: 1px solid #aaa;
     border-collapse: collapse;
     padding: 4px;
 }
 
+/* ===== 画面キーボード ===== */
 #keyboard {
   margin-top: 12px;
   display: grid;
@@ -33,10 +37,56 @@ table, td {
 .key-wide {
   grid-column: span 2;
 }
+
+/* ===== ここから追加（重要） ===== */
+
+/* 全体を中央寄せ＆横幅制限 */
+body {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+/* 日本語の意味（主役） */
+#meaning {
+  font-size: 26px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+/* 入力欄を目立たせる */
+#answerInput {
+  width: 100%;
+  font-size: 26px;
+  padding: 12px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+/* 回答ボタンを親指サイズに */
+#quiz button {
+  font-size: 22px;
+  padding: 14px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* スマホ専用でさらに強化 */
+@media (max-width: 600px) {
+  #meaning {
+    font-size: 28px;
+  }
+
+  #answerInput {
+    font-size: 28px;
+  }
+}
 </style>
 
 </head>
 <body>
+
 <header>
     <h2>英単語テスト</h2>
     <nav>
@@ -69,6 +119,7 @@ table, td {
         <table id="wordTable"></table>
     </section>
 </main>
+
 
 <script>
 // ===== 単語データ（words.js） =====
@@ -604,6 +655,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
