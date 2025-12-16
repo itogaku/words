@@ -96,6 +96,11 @@ body {
   color: red;
 }
 
+#correctWord {
+  font-size: 22px;
+  margin-top: 8px;
+  color: #333;
+}
     
 </style>
 
@@ -121,6 +126,8 @@ body {
         　　<p id="meaning">ここに意味が出ます</p>
         　　<span id="judge"></span>
     　　</div>
+
+     　 <p id="correctWord" class="hidden"></p>
 
     　　<input id="answerInput" type="text" readonly placeholder="英単語入力">
 
@@ -564,6 +571,9 @@ function renderQuestion() {
     document.getElementById("judge").textContent = "";
     document.getElementById("checkBtn").disabled = false;
     document.getElementById("nextBtn").classList.add("hidden");
+    document.getElementById("correctWord").classList.add("hidden");
+    document.getElementById("correctWord").textContent = "";
+
 }
 
 function checkAnswer() {
@@ -571,6 +581,11 @@ function checkAnswer() {
 
     const input = answerInput.value.trim().toLowerCase();
     const judge = document.getElementById("judge");
+    const correctWord = document.getElementById("correctWord");
+
+    // 初期化
+    correctWord.classList.add("hidden");
+    correctWord.textContent = "";
 
     if (input === current.word.toLowerCase()) {
         progress[current.word] = "correct";
@@ -580,6 +595,10 @@ function checkAnswer() {
         progress[current.word] = "wrong";
         judge.textContent = "✕";
         judge.className = "wrong";
+
+        // ★ 不正解のときだけ正解表示
+        correctWord.textContent = `正解：${current.word}`;
+        correctWord.classList.remove("hidden");
     }
 
     localStorage.setItem("progress", JSON.stringify(progress));
@@ -587,6 +606,7 @@ function checkAnswer() {
     document.getElementById("checkBtn").disabled = true;
     document.getElementById("nextBtn").classList.remove("hidden");
 }
+
 
 function nextQuestion() {
     renderQuestion();
@@ -699,6 +719,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
