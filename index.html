@@ -599,6 +599,7 @@ let progress = {};
 let current = null;
 let lastJudge = null;
 let wrongOnlyMode = false;
+let listBuilt = false;
 
 const meaning = document.getElementById("meaning");
 const judge = document.getElementById("judge");
@@ -696,22 +697,29 @@ function resetProgress() {
 }
 
 function renderList() {
-  const filter = document.getElementById("filter").value;
-  const table = document.getElementById("wordTable");
-  table.innerHTML = "<tr><th>単語</th><th>意味</th><th>状態</th></tr>";
+  const frag = document.createDocumentFragment();
+  list.innerHTML = "";
 
   words.forEach(w => {
-    const s = progress[w.word] || "unanswered";
-    if (filter !== "all" && filter !== s) return;
-    table.innerHTML += `<tr><td>${w.word}</td><td>${w.meaning}</td><td>${s}</td></tr>`;
+    const li = document.createElement("li");
+    li.textContent = `${w.word} : ${w.meaning}`;
+    frag.appendChild(li);
   });
+
+  list.appendChild(frag);
 }
+
 
 function showPage(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
-  if (id === "list") renderList();
+
+  if (id === "list" && !listBuilt) {
+    renderList();
+    listBuilt = true;
+  }
 }
+
 
   
 document.getElementById("filter").onchange = renderList;
@@ -750,6 +758,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
