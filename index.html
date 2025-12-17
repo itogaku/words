@@ -141,24 +141,29 @@ table, td {
 <main>
     <!-- 出題画面 -->
 　　<section id="quiz" class="page">
-    　　<div style="display:flex; align-items:center; gap:10px;">
-        　　<p id="meaning">ここに意味が出ます</p>
-        　　<span id="judge"></span>
-    　　</div>
 
-     　 <p id="correctWord" class="hidden"></p>
+  <!-- 上半分：問題・判定・操作 -->
+  <div id="quizTop">
 
-    　　<input id="answerInput" type="text" readonly placeholder="英単語入力">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <p id="meaning">ここに意味が出ます</p>
+      <span id="judge"></span>
+    </div>
 
+    <p id="correctWord" class="hidden"></p>
 
-   　　 <button id="checkBtn" onclick="checkAnswer()">回答！</button>
-   　　 <button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
-      　<button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
-     
-   　　 <div id="keyboard"></div>
+    <input id="answerInput" type="text" readonly placeholder="英単語入力">
 
-  　　  <p id="result"></p>
-　　</section>
+    <button id="checkBtn" onclick="checkAnswer()">回答！</button>
+    <button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
+    <button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
+
+  </div>
+
+  <!-- 下半分：画面キーボード -->
+  <div id="keyboard"></div>
+
+</section>
 
     <!-- 一覧画面 -->
     <section id="list" class="page hidden">
@@ -172,6 +177,23 @@ table, td {
         <table id="wordTable"></table>
     </section>
 </main>
+
+#quiz {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#quizTop {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#keyboard {
+  flex-shrink: 0;
+}
 
 
 <script>
@@ -821,6 +843,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
