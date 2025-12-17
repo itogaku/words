@@ -587,11 +587,6 @@ const checkBtn = document.getElementById("checkBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toggleBtn = document.getElementById("toggleBtn");
 
-function loadData() {
-  progress = JSON.parse(localStorage.getItem("progress") || "{}");
-  renderQuestion();
-}
-
 function getNextWord() {
   const list = words.filter(w => {
     const s = progress[w.word];
@@ -611,6 +606,7 @@ function renderQuestion() {
 
   meaning.textContent = current.meaning;
   judge.textContent = "";
+  judge.className = "";
   input.value = "";
   correctWord.classList.add("hidden");
   checkBtn.disabled = false;
@@ -636,16 +632,35 @@ checkBtn.onclick = () => {
 };
 
 toggleBtn.onclick = () => {
-  lastJudge = lastJudge === "correct" ? "wrong" : "correct";
-  judge.textContent = lastJudge === "correct" ? "◎" : "✕";
+  if (!current) return;
+
+  if (lastJudge === "correct") {
+    lastJudge = "wrong";
+    judge.textContent = "✕";
+    judge.className = "wrong";
+    correctWord.textContent = "答え: " + current.word;
+    correctWord.classList.remove("hidden");
+  } else {
+    lastJudge = "correct";
+    judge.textContent = "◎";
+    judge.className = "correct";
+    correctWord.classList.add("hidden");
+  }
 };
 
 nextBtn.onclick = () => {
+  if (!current || !lastJudge) return;
   progress[current.word] = lastJudge;
   localStorage.setItem("progress", JSON.stringify(progress));
   renderQuestion();
 };
 
+
+function loadData() {
+  progress = JSON.parse(localStorage.getItem("progress") || "{}");
+  renderQuestion();
+}
+  
 function toggleWrongOnlyMode() {
   wrongOnlyMode = !wrongOnlyMode;
   renderQuestion();
@@ -713,6 +728,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
