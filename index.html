@@ -23,6 +23,17 @@ body {
   display: none;
 }
 
+/* 問題画面はスクロールさせない */
+#quiz {
+  overflow: hidden;
+}
+
+/* 一覧画面は必ずスクロール */
+#list {
+  height: calc(100dvh - 36px);
+  overflow-y: auto;
+}
+
 /* ===== 出題画面 ===== */
 #quiz {
   min-height: 100dvh;
@@ -734,4 +745,5 @@ buildKeyboard();
 
 </body>
 </html>
+
 
