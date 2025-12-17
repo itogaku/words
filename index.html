@@ -170,20 +170,19 @@ main {
 </head>
 <body>
 
-<header>
-    <nav>
-        <button onclick="showPage('quiz')">出題</button>
-        <button onclick="showPage('list')">一覧</button>
-        <button onclick="toggleWrongOnlyMode()">不正解のみ出題</button>
-        <button onclick="resetProgress()">進捗リセット</button>
-    </nav>
-</header>
-
 <main>
     <!-- 出題画面 -->
 　　<section id="quiz" class="page">
 
  　　   <!-- 上半分：問題・判定・操作 -->
+
+       <nav>
+          <button onclick="showPage('quiz')">出題</button>
+          <button onclick="showPage('list')">一覧</button>
+          <button onclick="toggleWrongOnlyMode()">不正解のみ出題</button>
+          <button onclick="resetProgress()">進捗リセット</button>
+        </nav>
+     
   　　  <div id="quizTop">
    　 　  <div style="display:flex; align-items:center; gap:10px;">
      　　   <p id="meaning">ここに意味が出ます</p>
@@ -857,6 +856,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
