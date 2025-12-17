@@ -123,6 +123,23 @@ table, td {
   }
 }
 
+#quiz {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#quizTop {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#keyboard {
+  flex-shrink: 0;
+}
+
 </style>
 
     
@@ -177,24 +194,6 @@ table, td {
         <table id="wordTable"></table>
     </section>
 </main>
-
-#quiz {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-#quizTop {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-#keyboard {
-  flex-shrink: 0;
-}
-
 
 <script>
 // ===== 単語データ（words.js） =====
@@ -843,6 +842,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
