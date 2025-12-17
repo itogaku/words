@@ -7,8 +7,9 @@
 <title>英単語テスト</title>
 
 <style>
-
-/* 横スクロール完全防止セット */
+/* =========================
+   横スクロール完全防止
+========================= */
 * {
   box-sizing: border-box;
 }
@@ -16,30 +17,39 @@
 html, body {
   width: 100%;
   overflow-x: hidden;
+  margin: 0;
 }
 
-/* ===== 既存 ===== */
+/* =========================
+   基本スタイル（スマホ基準）
+========================= */
 body {
-    font-family: Arial;
-    margin: 20px;
+  font-family: Arial;
+  padding: 12px;      /* スマホは全幅で使う */
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 table, td {
-    border: 1px solid #aaa;
-    border-collapse: collapse;
-    padding: 4px;
+  border: 1px solid #aaa;
+  border-collapse: collapse;
+  padding: 4px;
+  width: 100%;
+  table-layout: fixed;
+  word-break: break-all;
 }
 
-/* ===== 画面キーボード ===== */
+/* =========================
+   画面キーボード
+========================= */
 #keyboard {
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
+  max-width: 100%;
 }
 
 #keyboard button {
@@ -51,33 +61,24 @@ table, td {
   grid-column: span 2;
 }
 
-/* ===== ここから追加（重要） ===== */
-
-/* 全体を中央寄せ＆横幅制限 */
-body {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 12px;
-}
-
-/* 日本語の意味（主役） */
+/* =========================
+   出題画面（主役）
+========================= */
 #meaning {
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1.6;
   margin-bottom: 14px;
   font-weight: 600;
 }
 
-/* 入力欄を目立たせる */
 #answerInput {
   width: 100%;
-  font-size: 26px;
+  font-size: 28px;
   padding: 12px;
   margin-bottom: 14px;
   text-align: center;
 }
 
-/* 回答ボタンを親指サイズに */
 #quiz button {
   font-size: 22px;
   padding: 14px;
@@ -85,17 +86,9 @@ body {
   margin-top: 10px;
 }
 
-/* スマホ専用でさらに強化 */
-@media (max-width: 600px) {
-  #meaning {
-    font-size: 28px;
-  }
-
-  #answerInput {
-    font-size: 28px;
-  }
-}
-
+/* =========================
+   正誤表示
+========================= */
 #judge {
   font-size: 28px;
   font-weight: bold;
@@ -122,9 +115,17 @@ body {
   width: 100%;
 }
 
-    
-</style>
+/* =========================
+   PCだけ中央寄せ
+========================= */
+@media (min-width: 700px) {
+  body {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
 
+</style>
 
     
 </head>
@@ -822,6 +823,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
