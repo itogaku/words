@@ -101,6 +101,14 @@ body {
   margin-top: 8px;
   color: #333;
 }
+
+#toggleBtn {
+  font-size: 16px;
+  padding: 10px;
+  margin-top: 6px;
+  width: 100%;
+}
+
     
 </style>
 
@@ -135,6 +143,7 @@ body {
 
    　　 <button id="checkBtn" onclick="checkAnswer()">回答！</button>
    　　 <button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
+      　<button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
 
   　　  <p id="result"></p>
 　　</section>
@@ -580,7 +589,8 @@ const words = [
 let progress = {}; 
 let current = null;
 let wrongOnlyMode = false;
-
+let lastJudge = null; // "correct" or "wrong"
+    
 function loadData() {
     const saved = localStorage.getItem("progress");
     if (saved) progress = JSON.parse(saved);
@@ -598,6 +608,7 @@ function getNextWord() {
 
 function renderQuestion() {
     current = getNextWord();
+    lastJudge = null;
 
     if (!current) {
         if (!wrongOnlyMode) {
@@ -621,6 +632,7 @@ function renderQuestion() {
     document.getElementById("nextBtn").classList.add("hidden");
     document.getElementById("correctWord").classList.add("hidden");
     document.getElementById("correctWord").textContent = "";
+　　document.getElementById("toggleBtn").classList.add("hidden");
 
 }
 
@@ -628,23 +640,23 @@ function checkAnswer() {
     if (!current) return;
 
     const input = answerInput.value.trim().toLowerCase();
-    const judge = document.getElementById("judge");
+    const judgeEl = document.getElementById("judge");
     const correctWord = document.getElementById("correctWord");
 
-    // 初期化
     correctWord.classList.add("hidden");
     correctWord.textContent = "";
 
     if (input === current.word.toLowerCase()) {
+        lastJudge = "correct";
         progress[current.word] = "correct";
-        judge.textContent = "◎";
-        judge.className = "correct";
+        judgeEl.textContent = "◎";
+        judgeEl.className = "correct";
     } else {
+        lastJudge = "wrong";
         progress[current.word] = "wrong";
-        judge.textContent = "✕";
-        judge.className = "wrong";
+        judgeEl.textContent = "✕";
+        judgeEl.className = "wrong";
 
-        // ★ 不正解のときだけ正解表示
         correctWord.textContent = `正解：${current.word}`;
         correctWord.classList.remove("hidden");
     }
@@ -653,6 +665,36 @@ function checkAnswer() {
 
     document.getElementById("checkBtn").disabled = true;
     document.getElementById("nextBtn").classList.remove("hidden");
+    document.getElementById("toggleBtn").classList.remove("hidden");
+}
+
+function toggleJudge() {
+    if (!current || !lastJudge) return;
+
+    const judgeEl = document.getElementById("judge");
+    const correctWord = document.getElementById("correctWord");
+
+    if (lastJudge === "correct") {
+        // 正解 → 不正解
+        lastJudge = "wrong";
+        progress[current.word] = "wrong";
+        judgeEl.textContent = "✕";
+        judgeEl.className = "wrong";
+
+        correctWord.textContent = `正解：${current.word}`;
+        correctWord.classList.remove("hidden");
+    } else {
+        // 不正解 → 正解
+        lastJudge = "correct";
+        progress[current.word] = "correct";
+        judgeEl.textContent = "◎";
+        judgeEl.className = "correct";
+
+        correctWord.classList.add("hidden");
+        correctWord.textContent = "";
+    }
+
+    localStorage.setItem("progress", JSON.stringify(progress));
 }
 
 
@@ -767,6 +809,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
