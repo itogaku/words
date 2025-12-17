@@ -3,60 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>英単語学習</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
+  padding: 8px;
 }
-
-/* ===== ページ切替 ===== */
-.page { display: none; }
-.page.active { display: block; }
 
 .hidden {
   display: none;
 }
 
-/* ===== 上部コントロール ===== */
-#topControls {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  background: #fff;
-  z-index: 100;
-}
-
-#topControls button {
-  font-size: 12px;
-  padding: 4px 6px;
-}
-
-/* ===== 共通余白 ===== */
-#quiz, #list {
-  padding: 40px 8px 8px;
-}
-
-/* ===== クイズ画面 ===== */
+/* ===== 出題画面 ===== */
 #quiz {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  padding-top: 36px;
 }
 
 #quizTop {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
+
 
 #meaning {
   font-size: 20px;
@@ -72,7 +48,7 @@ body {
 .wrong { color: red; }
 
 #correctWord {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 #answerInput {
@@ -88,7 +64,6 @@ body {
 
 /* ===== キーボード ===== */
 #keyboard {
-  margin-top: 6px;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
@@ -98,11 +73,25 @@ body {
   padding: 6px 0;
 }
 
-.key-wide { grid-column: span 2; }
+.key-wide {
+  grid-column: span 2;
+}
+
+/* ===== 上部操作 ===== */
+#quizControls {
+  position: static;
+  transform: none;
+  margin-bottom: 8px;
+}
+
+#quizControls button {
+  font-size: 12px;
+  padding: 4px;
+}
 
 /* ===== 一覧 ===== */
-#list select {
-  margin-bottom: 8px;
+#list {
+  padding-top: 36px;
 }
 
 table {
@@ -113,14 +102,13 @@ table {
 td, th {
   border: 1px solid #aaa;
   padding: 4px;
-  font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="topControls">
+<div id="quizControls">
   <button onclick="showPage('quiz')">問題</button>
   <button onclick="showPage('list')">一覧</button>
   <button onclick="toggleWrongOnlyMode()">不正解のみ</button>
@@ -129,8 +117,7 @@ td, th {
 
 <main>
 
-<!-- ===== クイズ ===== -->
-<section id="quiz" class="page active">
+<section id="quiz" class="page">
   <div id="quizTop">
     <div>
       <span id="meaning"></span>
@@ -149,19 +136,18 @@ td, th {
   <div id="keyboard"></div>
 </section>
 
-<!-- ===== 一覧 ===== -->
-<section id="list" class="page">
+<section id="list" class="page hidden">
   <select id="filter">
     <option value="all">全て</option>
     <option value="correct">正解</option>
     <option value="wrong">不正解</option>
     <option value="unanswered">未出題</option>
   </select>
-
   <table id="wordTable"></table>
 </section>
 
 </main>
+
 
 
 
@@ -594,7 +580,6 @@ let current = null;
 let lastJudge = null;
 let wrongOnlyMode = false;
 
-/* ===== DOM ===== */
 const meaning = document.getElementById("meaning");
 const judge = document.getElementById("judge");
 const correctWord = document.getElementById("correctWord");
@@ -603,29 +588,10 @@ const checkBtn = document.getElementById("checkBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toggleBtn = document.getElementById("toggleBtn");
 
-/* ===== 初期化 ===== */
-loadData();
-buildKeyboard();
-
-document.getElementById("filter").onchange = renderList;
-
-/* ===== ページ切替 ===== */
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'list') renderList();
-}
-
-/* ===== クイズ ===== */
-function loadData() {
-  progress = JSON.parse(localStorage.getItem('progress') || '{}');
-  renderQuestion();
-}
-
 function getNextWord() {
   const list = words.filter(w => {
     const s = progress[w.word];
-    return wrongOnlyMode ? s === 'wrong' : s !== 'correct';
+    return wrongOnlyMode ? s === "wrong" : s !== "correct";
   });
   return list.length ? list[Math.floor(Math.random() * list.length)] : null;
 }
@@ -635,116 +601,132 @@ function renderQuestion() {
   lastJudge = null;
 
   if (!current) {
-    meaning.textContent = '学習完了！';
-    judge.textContent = '';
+    meaning.textContent = "学習完了！";
     return;
   }
 
   meaning.textContent = current.meaning;
-  judge.textContent = '';
-  judge.className = '';
-  input.value = '';
-  correctWord.classList.add('hidden');
+  judge.textContent = "";
+  judge.className = "";
+  input.value = "";
+  correctWord.classList.add("hidden");
   checkBtn.disabled = false;
-  nextBtn.classList.add('hidden');
-  toggleBtn.classList.add('hidden');
+  nextBtn.classList.add("hidden");
+  toggleBtn.classList.add("hidden");
 }
 
 checkBtn.onclick = () => {
   const ok = input.value.toLowerCase() === current.word.toLowerCase();
-  lastJudge = ok ? 'correct' : 'wrong';
+  lastJudge = ok ? "correct" : "wrong";
 
-  judge.textContent = ok ? '◎' : '✕';
-  judge.className = ok ? 'correct' : 'wrong';
+  judge.textContent = ok ? "◎" : "✕";
+  judge.className = ok ? "correct" : "wrong";
 
   if (!ok) {
-    correctWord.textContent = '答え: ' + current.word;
-    correctWord.classList.remove('hidden');
+    correctWord.textContent = "答え: " + current.word;
+    correctWord.classList.remove("hidden");
   }
 
   checkBtn.disabled = true;
-  nextBtn.classList.remove('hidden');
-  toggleBtn.classList.remove('hidden');
+  nextBtn.classList.remove("hidden");
+  toggleBtn.classList.remove("hidden");
 };
 
 toggleBtn.onclick = () => {
   if (!current) return;
 
-  if (lastJudge === 'correct') {
-    lastJudge = 'wrong';
-    judge.textContent = '✕';
-    judge.className = 'wrong';
-    correctWord.textContent = '答え: ' + current.word;
-    correctWord.classList.remove('hidden');
+  if (lastJudge === "correct") {
+    lastJudge = "wrong";
+    judge.textContent = "✕";
+    judge.className = "wrong";
+    correctWord.textContent = "答え: " + current.word;
+    correctWord.classList.remove("hidden");
   } else {
-    lastJudge = 'correct';
-    judge.textContent = '◎';
-    judge.className = 'correct';
-    correctWord.classList.add('hidden');
+    lastJudge = "correct";
+    judge.textContent = "◎";
+    judge.className = "correct";
+    correctWord.classList.add("hidden");
   }
 };
 
 nextBtn.onclick = () => {
   if (!current || !lastJudge) return;
   progress[current.word] = lastJudge;
-  localStorage.setItem('progress', JSON.stringify(progress));
+  localStorage.setItem("progress", JSON.stringify(progress));
   renderQuestion();
 };
 
+
+function loadData() {
+  progress = JSON.parse(localStorage.getItem("progress") || "{}");
+  renderQuestion();
+}
+  
 function toggleWrongOnlyMode() {
   wrongOnlyMode = !wrongOnlyMode;
   renderQuestion();
 }
 
 function resetProgress() {
-  if (!confirm('リセットしますか？')) return;
+  if (!confirm("リセットしますか？")) return;
   progress = {};
-  localStorage.removeItem('progress');
+  localStorage.removeItem("progress");
   wrongOnlyMode = false;
   renderQuestion();
 }
 
-/* ===== 一覧 ===== */
 function renderList() {
-  const filter = document.getElementById('filter').value;
-  const table = document.getElementById('wordTable');
-
-  table.innerHTML = '<tr><th>単語</th><th>意味</th><th>状態</th></tr>';
+  const filter = document.getElementById("filter").value;
+  const table = document.getElementById("wordTable");
+  table.innerHTML = "<tr><th>単語</th><th>意味</th><th>状態</th></tr>";
 
   words.forEach(w => {
-    const s = progress[w.word] || 'unanswered';
-    if (filter !== 'all' && filter !== s) return;
+    const s = progress[w.word] || "unanswered";
+    if (filter !== "all" && filter !== s) return;
     table.innerHTML += `<tr><td>${w.word}</td><td>${w.meaning}</td><td>${s}</td></tr>`;
   });
 }
 
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  if (id === "list") renderList();
+}
+
+  
+document.getElementById("filter").onchange = renderList;
+
+loadData();
+
 /* ===== キーボード ===== */
-const keyboard = document.getElementById('keyboard');
+const keyboard = document.getElementById("keyboard");
 let upper = false;
 
 function buildKeyboard() {
-  keyboard.innerHTML = '';
-
+  keyboard.innerHTML = "";
   for (let i = 0; i < 26; i++) {
     const c = String.fromCharCode(97 + i);
-    const b = document.createElement('button');
+    const b = document.createElement("button");
     b.textContent = upper ? c.toUpperCase() : c;
     b.onclick = () => input.value += b.textContent;
     keyboard.appendChild(b);
   }
 
-  const shift = document.createElement('button');
-  shift.textContent = 'Shift';
-  shift.className = 'key-wide';
+  const shift = document.createElement("button");
+  shift.textContent = "Shift";
+  shift.className = "key-wide";
   shift.onclick = () => { upper = !upper; buildKeyboard(); };
   keyboard.appendChild(shift);
 
-  const back = document.createElement('button');
-  back.textContent = '⌫';
-  back.className = 'key-wide';
+  const back = document.createElement("button");
+  back.textContent = "⌫";
+  back.className = "key-wide";
   back.onclick = () => input.value = input.value.slice(0, -1);
   keyboard.appendChild(back);
 }
+
+buildKeyboard();
 </script>
+
 </body>
 </html>
