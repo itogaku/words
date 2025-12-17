@@ -666,12 +666,6 @@ function toggleWrongOnlyMode() {
   renderQuestion();
 }
 
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  if (id === "list") renderList();
-}
-
 function resetProgress() {
   if (!confirm("リセットしますか？")) return;
   progress = {};
@@ -692,6 +686,13 @@ function renderList() {
   });
 }
 
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  if (id === "list") renderList();
+}
+
+  
 document.getElementById("filter").onchange = renderList;
 
 loadData();
@@ -728,6 +729,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
