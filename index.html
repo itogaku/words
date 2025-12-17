@@ -159,28 +159,27 @@ table, td {
     <!-- 出題画面 -->
 　　<section id="quiz" class="page">
 
-  <!-- 上半分：問題・判定・操作 -->
-  <div id="quizTop">
+ 　　 <!-- 上半分：問題・判定・操作 -->
+  　　<div id="quizTop">
 
-    <div style="display:flex; align-items:center; gap:10px;">
-      <p id="meaning">ここに意味が出ます</p>
-      <span id="judge"></span>
-    </div>
+   　 　<div style="display:flex; align-items:center; gap:10px;">
+     　　 <p id="meaning">ここに意味が出ます</p>
+     　 　<span id="judge"></span>
+   　 　</div>
 
-    <p id="correctWord" class="hidden"></p>
+    　　<p id="correctWord" class="hidden"></p>
 
-    <input id="answerInput" type="text" readonly placeholder="英単語入力">
+   　 　<input id="answerInput" type="text" readonly placeholder="英単語入力">
 
-    <button id="checkBtn" onclick="checkAnswer()">回答！</button>
-    <button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
-    <button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
+   　 　<button id="checkBtn" onclick="checkAnswer()">回答！</button>
+   　 　<button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
+   　 　<button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
 
-  </div>
+　  　</div>
 
-  <!-- 下半分：画面キーボード -->
-  <div id="keyboard"></div>
-
-</section>
+  　　<!-- 下半分：画面キーボード -->
+ 　　 <div id="keyboard"></div>
+　　</section>
 
     <!-- 一覧画面 -->
     <section id="list" class="page hidden">
@@ -842,6 +841,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
