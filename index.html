@@ -159,23 +159,21 @@ table, td {
     <!-- 出題画面 -->
 　　<section id="quiz" class="page">
 
- 　　 <!-- 上半分：問題・判定・操作 -->
-  　　<div id="quizTop">
+ 　　   <!-- 上半分：問題・判定・操作 -->
+  　　  <div id="quizTop">
+   　 　  <div style="display:flex; align-items:center; gap:10px;">
+     　　   <p id="meaning">ここに意味が出ます</p>
+     　 　  <span id="judge"></span>
+   　 　  </div>
 
-   　 　<div style="display:flex; align-items:center; gap:10px;">
-     　　 <p id="meaning">ここに意味が出ます</p>
-     　 　<span id="judge"></span>
-   　 　</div>
+    　　  <p id="correctWord" class="hidden"></p>
 
-    　　<p id="correctWord" class="hidden"></p>
+   　 　  <input id="answerInput" type="text" readonly placeholder="英単語入力">
 
-   　 　<input id="answerInput" type="text" readonly placeholder="英単語入力">
-
-   　 　<button id="checkBtn" onclick="checkAnswer()">回答！</button>
-   　 　<button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
-   　 　<button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
-
-　  　</div>
+   　 　  <button id="checkBtn" onclick="checkAnswer()">回答！</button>
+   　 　  <button id="nextBtn" onclick="nextQuestion()" class="hidden">次へ</button>
+   　 　  <button id="toggleBtn" onclick="toggleJudge()" class="hidden">正誤を切替</button>
+　  　  </div>
 
   　　<!-- 下半分：画面キーボード -->
  　　 <div id="keyboard"></div>
@@ -669,36 +667,31 @@ function renderQuestion() {
 }
 
 function checkAnswer() {
-    if (!current) return;
+  if (!current) return;
 
-    const input = answerInput.value.trim().toLowerCase();
-    const judgeEl = document.getElementById("judge");
-    const correctWord = document.getElementById("correctWord");
+  const input = answerInput.value.trim().toLowerCase();
+  const isCorrect = (input === current.word.toLowerCase());
 
+  // 👇 ここからが「例で出した部分」
+  if (isCorrect) {
+    judge.textContent = "◎";
+    judge.className = "correct";
     correctWord.classList.add("hidden");
-    correctWord.textContent = "";
+  } else {
+    judge.textContent = "✕";
+    judge.className = "wrong";
+    correctWord.textContent = "答え: " + current.word;
+    correctWord.classList.remove("hidden");
+  }
 
-    if (input === current.word.toLowerCase()) {
-        lastJudge = "correct";
-        progress[current.word] = "correct";
-        judgeEl.textContent = "◎";
-        judgeEl.className = "correct";
-    } else {
-        lastJudge = "wrong";
-        progress[current.word] = "wrong";
-        judgeEl.textContent = "✕";
-        judgeEl.className = "wrong";
+  // 進捗はここではまだ確定しない（切替できるように）
+  lastJudge = isCorrect ? "correct" : "wrong";
 
-        correctWord.textContent = `正解：${current.word}`;
-        correctWord.classList.remove("hidden");
-    }
-
-    localStorage.setItem("progress", JSON.stringify(progress));
-
-    document.getElementById("checkBtn").disabled = true;
-    document.getElementById("nextBtn").classList.remove("hidden");
-    document.getElementById("toggleBtn").classList.remove("hidden");
+  toggleBtn.classList.remove("hidden");
+  nextBtn.classList.remove("hidden");
+  checkBtn.disabled = true;
 }
+
 
 function toggleJudge() {
     if (!current || !lastJudge) return;
@@ -841,6 +834,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
