@@ -137,12 +137,12 @@ table, td {
 }
 
 #keyboard {
-  flex-shrink: 0;
+  gap: 2px;
 }
 
 #keyboard button {
-  padding: 8px 0;
-  font-size: 16px;
+  font-size: 12px;
+  padding: 4px 0;
 }
 
    
@@ -156,12 +156,14 @@ main {
 }
 
 #meaning {
-  margin-bottom: 6px;
-　margin-top: 0;
+  font-size: 16px;
+  margin: 0;
 }
 
 #answerInput {
-  margin-bottom: 6px;
+  font-size: 16px;
+  padding: 4px;
+  margin: 0;
 }
 
 #quizControls {
@@ -175,12 +177,32 @@ main {
 }
 
 #quizControls button {
-  padding: 8px 12px;
   font-size: 14px;
+  padding: 4px;
+  margin: 0;
 }
 
 #quizTop {
-  padding-top: 36px;
+  padding-top: 24px;   /* 上バー分だけ */
+  gap: 2px;
+}
+
+#topControls {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  background: #fff;
+  z-index: 1000;
+}
+
+#topControls button {
+  font-size: 10px;
+  padding: 2px 6px;
 }
 
    
@@ -875,6 +897,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
