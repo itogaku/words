@@ -206,14 +206,27 @@ main {
 }
 
 /* ===== 強制縦圧縮（最優先） ===== */
-* {
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1 !important;
+/* ===== 出題画面だけ縦圧縮 ===== */
+#quiz *,
+#quizTop *,
+#keyboard * {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
 }
+
 
 button, input {
   line-height: 1 !important;
+}
+
+#list {
+  overflow-y: auto;
+}
+
+#list table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
    
@@ -908,6 +921,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
