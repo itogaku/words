@@ -780,6 +780,19 @@ function buildKeyboard() {
 
     keyboard.appendChild(rowDiv);
   });
+
+  const shift = document.createElement("button");
+  shift.textContent = "Shift";
+  shift.className = "key-wide";
+  shift.onclick = () => { upper = !upper; buildKeyboard(); };
+  keyboard.appendChild(shift);
+
+  const back = document.createElement("button");
+  back.textContent = "⌫";
+  back.className = "key-wide";
+  back.onclick = () => input.value = input.value.slice(0, -1);
+  keyboard.appendChild(back);
+
 }
 
 const keyboardSelect = document.getElementById("keyboardSelect");
@@ -797,6 +810,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
