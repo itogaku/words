@@ -154,6 +154,11 @@ td, th {
   </div>
 
   <div id="keyboard"></div>
+  <select id="keyboardSelect">
+  　<option value="mobile">スマホ配列</option>
+  　<option value="qwerty">PC配列（QWERTY）</option>
+　</select>
+
 </section>
 
 <section id="list" class="page hidden">
@@ -600,6 +605,21 @@ let current = null;
 let lastJudge = null;
 let wrongOnlyMode = false;
 let listBuilt = false;
+let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
+  
+const keyboardLayouts = {
+  mobile: [
+    ["q","w","e","r","t","y","u","i","o","p"],
+    ["a","s","d","f","g","h","j","k","l"],
+    ["z","x","c","v","b","n","m"]
+  ],
+  qwerty: [
+    ["q","w","e","r","t","y","u","i","o","p"],
+    ["a","s","d","f","g","h","j","k","l"],
+    ["z","x","c","v","b","n","m"]
+  ]
+};
+
 
 const meaning = document.getElementById("meaning");
 const judge = document.getElementById("judge");
@@ -732,32 +752,40 @@ let upper = false;
 
 function buildKeyboard() {
   keyboard.innerHTML = "";
-  for (let i = 0; i < 26; i++) {
-    const c = String.fromCharCode(97 + i);
-    const b = document.createElement("button");
-    b.textContent = upper ? c.toUpperCase() : c;
-    b.onclick = () => input.value += b.textContent;
-    keyboard.appendChild(b);
-  }
 
-  const shift = document.createElement("button");
-  shift.textContent = "Shift";
-  shift.className = "key-wide";
-  shift.onclick = () => { upper = !upper; buildKeyboard(); };
-  keyboard.appendChild(shift);
+  const layout = keyboardLayouts[currentLayout];
 
-  const back = document.createElement("button");
-  back.textContent = "⌫";
-  back.className = "key-wide";
-  back.onclick = () => input.value = input.value.slice(0, -1);
-  keyboard.appendChild(back);
+  layout.forEach(row => {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "key-row";
+
+    row.forEach(ch => {
+      const btn = document.createElement("button");
+      btn.textContent = ch;
+      btn.onclick = () => input.value += ch;
+      rowDiv.appendChild(btn);
+    });
+
+    keyboard.appendChild(rowDiv);
+  });
 }
 
+const keyboardSelect = document.getElementById("keyboardSelect");
+keyboardSelect.value = currentLayout;
+
+keyboardSelect.onchange = () => {
+  currentLayout = keyboardSelect.value;
+  localStorage.setItem("keyboardLayout", currentLayout);
+  buildKeyboard();
+};
+
+  
 buildKeyboard();
 </script>
 
 </body>
 </html>
+
 
 
 
