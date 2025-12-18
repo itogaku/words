@@ -773,8 +773,21 @@ function buildKeyboard() {
 
     row.forEach(ch => {
       const btn = document.createElement("button");
-      btn.textContent = ch;
-      btn.onclick = () => input.value += ch;
+
+      // 表示は Shift 状態に応じて切替
+      btn.textContent = upper ? ch.toUpperCase() : ch;
+
+      btn.onclick = () => {
+        // 入力時も Shift 状態を反映
+        input.value += upper ? ch.toUpperCase() : ch;
+
+        // 1文字入力後に Shift を解除
+        if (upper) {
+          upper = false;
+          buildKeyboard();
+        }
+      };
+
       rowDiv.appendChild(btn);
     });
 
@@ -784,7 +797,14 @@ function buildKeyboard() {
   const shift = document.createElement("button");
   shift.textContent = "Shift";
   shift.className = "key-wide";
-  shift.onclick = () => { upper = !upper; buildKeyboard(); };
+  shift.classList.toggle("active", upper);
+
+  // Shiftはトグルしない（一時ON）
+  shift.onclick = () => {
+    upper = true;
+    buildKeyboard();
+  };
+
   keyboard.appendChild(shift);
 
   const back = document.createElement("button");
@@ -792,7 +812,6 @@ function buildKeyboard() {
   back.className = "key-wide";
   back.onclick = () => input.value = input.value.slice(0, -1);
   keyboard.appendChild(back);
-
 }
 
 const keyboardSelect = document.getElementById("keyboardSelect");
@@ -804,12 +823,13 @@ keyboardSelect.onchange = () => {
   buildKeyboard();
 };
 
-  
 buildKeyboard();
+
 </script>
 
 </body>
 </html>
+
 
 
 
