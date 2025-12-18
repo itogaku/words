@@ -147,6 +147,27 @@ td, th {
   border: 1px solid #aaa;
   padding: 4px;
 }
+
+  #wordTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+#wordTable th,
+#wordTable td {
+  border: 1px solid #ccc;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+#wordTable th {
+  background: #f0f0f0;
+  position: sticky;
+  top: 0;
+}
+
+  
 </style>
 </head>
 
@@ -741,17 +762,49 @@ function resetProgress() {
 }
 
 function renderList() {
-  const frag = document.createDocumentFragment();
-  list.innerHTML = "";
+  const table = document.getElementById("wordTable");
+  table.innerHTML = "";
 
-  words.forEach(w => {
-    const li = document.createElement("li");
-    li.textContent = `${w.word} : ${w.meaning}`;
-    frag.appendChild(li);
+  // ヘッダー
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+
+  ["単語", "意味", "状態"].forEach(text => {
+    const th = document.createElement("th");
+    th.textContent = text;
+    headRow.appendChild(th);
   });
 
-  list.appendChild(frag);
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  // 本体
+  const tbody = document.createElement("tbody");
+
+  words.forEach(w => {
+    const tr = document.createElement("tr");
+
+    const tdWord = document.createElement("td");
+    tdWord.textContent = w.word;
+
+    const tdMeaning = document.createElement("td");
+    tdMeaning.textContent = w.meaning;
+
+    const tdStatus = document.createElement("td");
+    tdStatus.textContent =
+      progress[w.word] === "correct" ? "◎" :
+      progress[w.word] === "wrong"   ? "✕" : "";
+
+    tr.appendChild(tdWord);
+    tr.appendChild(tdMeaning);
+    tr.appendChild(tdStatus);
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
 }
+
 
 
 function showPage(id) {
@@ -841,6 +894,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
