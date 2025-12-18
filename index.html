@@ -108,7 +108,19 @@ body {
   height: 32px;
 }
 
+.key {
+  min-width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
 
+/* shift / del を特別扱いしない */
+.key[data-func] {
+  background: inherit;
+  font-weight: normal;
+}
+
+  
 /* ===== 上部操作 ===== */
 #quizControls {
   position: static;
@@ -623,12 +635,12 @@ const keyboardLayouts = {
   mobile: [
     ["a","b","c","d","e","f","g","h","i"],
     ["j","k","l","m","n","o","p","q","r"],
-    ["s","t","u","v","w","x","y","z"]
+    ["shift","s","t","u","v","w","x","y","z","del"]
   ],
   qwerty: [
     ["q","w","e","r","t","y","u","i","o","p"],
     ["a","s","d","f","g","h","j","k","l"],
-    ["z","x","c","v","b","n","m"]
+    ["shift","z","x","c","v","b","n","m","del"]
   ]
 };
 
@@ -774,45 +786,45 @@ function buildKeyboard() {
     row.forEach(ch => {
       const btn = document.createElement("button");
 
-      // 表示は Shift 状態に応じて切替
-      btn.textContent = upper ? ch.toUpperCase() : ch;
+      // 表示テキスト
+      if (ch === "shift") {
+        btn.textContent = "Shift";
+        btn.classList.toggle("active", upper);
 
-      btn.onclick = () => {
-        // 入力時も Shift 状態を反映
-        input.value += upper ? ch.toUpperCase() : ch;
-
-        // 1文字入力後に Shift を解除
-        if (upper) {
-          upper = false;
+        btn.onclick = () => {
+          upper = true;          // 一時ON
           buildKeyboard();
-        }
-      };
+        };
+
+      } else if (ch === "back") {
+        btn.textContent = "⌫";
+
+        btn.onclick = () => {
+          input.value = input.value.slice(0, -1);
+        };
+
+      } else {
+        // 通常文字キー
+        btn.textContent = upper ? ch.toUpperCase() : ch;
+
+        btn.onclick = () => {
+          input.value += upper ? ch.toUpperCase() : ch;
+
+          // 1文字入力後に Shift を解除
+          if (upper) {
+            upper = false;
+            buildKeyboard();
+          }
+        };
+      }
 
       rowDiv.appendChild(btn);
     });
 
     keyboard.appendChild(rowDiv);
   });
-
-  const shift = document.createElement("button");
-  shift.textContent = "Shift";
-  shift.className = "key-wide";
-  shift.classList.toggle("active", upper);
-
-  // Shiftはトグルしない（一時ON）
-  shift.onclick = () => {
-    upper = true;
-    buildKeyboard();
-  };
-
-  keyboard.appendChild(shift);
-
-  const back = document.createElement("button");
-  back.textContent = "⌫";
-  back.className = "key-wide";
-  back.onclick = () => input.value = input.value.slice(0, -1);
-  keyboard.appendChild(back);
 }
+
 
 const keyboardSelect = document.getElementById("keyboardSelect");
 keyboardSelect.value = currentLayout;
@@ -829,6 +841,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
