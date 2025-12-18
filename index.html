@@ -167,8 +167,8 @@ td, th {
 
   <div id="keyboard"></div>
   <select id="keyboardSelect">
-  　<option value="mobile">スマホ配列</option>
-  　<option value="qwerty">PC配列（QWERTY）</option>
+  　<option value="mobile">アルファベット配列</option>
+  　<option value="qwerty">キーボード配列（QWERTY）</option>
 　</select>
 
 </section>
@@ -621,9 +621,9 @@ let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
   
 const keyboardLayouts = {
   mobile: [
-    ["q","w","e","r","t","y","u","i","o","p"],
-    ["a","s","d","f","g","h","j","k","l"],
-    ["z","x","c","v","b","n","m"]
+    ["a","b","c","d","e","f","g","h","i"],
+    ["j","k","l","m","n","o","p","q","r"],
+    ["s","t","u","v","w","x","y","z"]
   ],
   qwerty: [
     ["q","w","e","r","t","y","u","i","o","p"],
@@ -797,6 +797,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
