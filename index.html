@@ -74,8 +74,8 @@ body {
 
 /* 入力欄 */
 #answerInput {
-  font-size: 22px;
-  padding: 10px;
+  font-size: 18px;
+  padding: 6px;
   width: 80%;
   max-width: 320px;
   text-align: center;
@@ -145,7 +145,6 @@ body {
 }
 
 
-
   
 </style>
 </head>
@@ -163,20 +162,19 @@ body {
 
 <section id="quiz" class="page">
   <div id="quizTop">
-
-    <div id="progressMini"></div>
-
-    <div id="meaning"></div>
-
-    <input id="answerInput" />
-
-    <div id="resultArea">
-      <div id="judge"></div>
-      <div id="correctWord" class="hidden"></div>
+    <div>
+      <span id="meaning"></span>
+      <span id="judge"></span>
     </div>
 
-  </div>
+    <div id="correctWord" class="hidden"></div>
 
+    <input id="answerInput" type="text" readonly>
+
+    <button id="checkBtn">回答</button>
+    <button id="nextBtn" class="hidden">次へ</button>
+    <button id="toggleBtn" class="hidden">正誤切替</button>
+  </div>
 
   <div id="keyboard"></div>
   <select id="keyboardSelect">
@@ -197,6 +195,7 @@ body {
 </section>
 
 </main>
+
 
 
 
@@ -654,7 +653,6 @@ const checkBtn = document.getElementById("checkBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toggleBtn = document.getElementById("toggleBtn");
 
-
 function getNextWord() {
   const list = words.filter(w => {
     const s = progress[w.word];
@@ -666,7 +664,7 @@ function getNextWord() {
 function renderQuestion() {
   current = getNextWord();
   lastJudge = null;
- 
+
   if (!current) {
     meaning.textContent = "学習完了！";
     return;
@@ -875,6 +873,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
