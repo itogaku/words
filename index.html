@@ -634,7 +634,6 @@ let progress = {};
 let current = null;
 let lastJudge = null;
 let wrongOnlyMode = false;
-let listBuilt = false;
 let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
 
   
@@ -808,9 +807,8 @@ function showPage(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 
-  if (id === "list" && !listBuilt) {
+  if (id === "list") {
     renderList();
-    listBuilt = true;
   }
 }
 
@@ -891,6 +889,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
