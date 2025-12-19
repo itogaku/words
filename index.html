@@ -709,9 +709,19 @@ function getNextWord() {
 
 function updateProgressMini() {
   if (!progressMini) return;
-  progressMini.textContent =
-    `${Object.keys(progress).length} / ${words.length}`;
+
+  // 不正解数
+  const wrongCount =
+    Object.values(progress).filter(v => v === "wrong").length;
+
+  if (wrongOnlyMode) {
+    progressMini.textContent = `不正解：${wrongCount} 問`;
+  } else {
+    progressMini.textContent =
+      `進捗：${Object.keys(progress).length} / ${words.length}`;
+  }
 }
+
 
 
 function renderQuestion() {
@@ -973,6 +983,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
