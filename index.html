@@ -173,9 +173,6 @@ body {
   justify-content: center;
   gap: 8px;
 }
-
-#quiz { background: #ffe0e0; }
-#keyboard { background: #e0e0ff; }
   
 </style>
 </head>
@@ -701,7 +698,7 @@ function getNextWord() {
 function renderQuestion() {
   current = getNextWord();
   lastJudge = null;
-　progressMini.textContent =
+  progressMini.textContent =
   `${Object.keys(progress).length + 1} / ${words.length}`;
 
   
@@ -913,6 +910,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
