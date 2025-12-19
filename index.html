@@ -150,6 +150,10 @@ body {
   margin-bottom: 8px;
 }
 
+#wordTable td:last-child:hover {
+  background: #eef;
+}
+
   
 </style>
 </head>
@@ -791,9 +795,33 @@ function renderList() {
     tdMeaning.textContent = w.meaning;
 
     const tdStatus = document.createElement("td");
+
+    const key = w.word.toLowerCase();
+    const state = progress[key];
+
     tdStatus.textContent =
-    progress[w.word.toLowerCase()] === "correct" ? "〇" :
-    progress[w.word.toLowerCase()] === "wrong"   ? "×" : "";
+      state === "correct" ? "〇" :
+      state === "wrong"   ? "×" : "";
+
+    // ★ クリックで状態切替
+    tdStatus.style.cursor = "pointer";
+    tdStatus.onclick = () => {
+      if (!progress[key]) {
+        // 未出題 → 〇
+        progress[key] = "correct";
+      } else if (progress[key] === "correct") {
+        // 〇 → ×
+        progress[key] = "wrong";
+      } else if (progress[key] === "wrong") {
+        // × → 〇
+        progress[key] = "correct";
+      }
+
+      localStorage.setItem("progress", JSON.stringify(progress));
+      renderList();
+    };
+
+
 
 
     tr.appendChild(tdWord);
@@ -894,6 +922,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
