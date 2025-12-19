@@ -698,10 +698,10 @@ function getNextWord() {
 function renderQuestion() {
   current = getNextWord();
   lastJudge = null;
-  progressMini.textContent =
-  `${Object.keys(progress).length + 1} / ${words.length}`;
 
-  
+  progressMini.textContent =
+    `${Object.keys(progress).length + 1} / ${words.length}`;
+
   if (!current) {
     meaning.textContent = "学習完了！";
     return;
@@ -910,6 +910,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
