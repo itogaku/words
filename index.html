@@ -161,7 +161,7 @@ body {
 <body>
 
 <div id="quizControls">
-  <button onclick="showPage('quiz')">問題</button>
+  <button onclick="goToQuiz()">問題</button>
   <button onclick="showPage('list')">一覧</button>
   <button onclick="toggleWrongOnlyMode()">不正解のみ</button>
   <button onclick="resetProgress()">リセット</button>
@@ -639,6 +639,7 @@ let current = null;
 let lastJudge = null;
 let wrongOnlyMode = false;
 let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
+let unattemptedOnlyMode = false;
 
   
 const keyboardLayouts = {
@@ -668,10 +669,23 @@ const progressMini = document.getElementById("progressMini");
 function getNextWord() {
   const list = words.filter(w => {
     const s = progress[w.word.toLowerCase()];
-    return wrongOnlyMode ? s === "wrong" : s !== "correct";
+
+    if (wrongOnlyMode) {
+      return s === "wrong";
+    }
+
+    if (unattemptedOnlyMode) {
+      return s === undefined;
+    }
+
+    return s !== "correct";
   });
-  return list.length ? list[Math.floor(Math.random() * list.length)] : null;
+
+  return list.length
+    ? list[Math.floor(Math.random() * list.length)]
+    : null;
 }
+
 
 function updateProgressMini() {
   if (!progressMini) return;
@@ -845,6 +859,16 @@ function showPage(id) {
   }
 }
 
+function goToQuiz() {
+  // 不正解のみ出題モード中なら
+  if (wrongOnlyMode) {
+    wrongOnlyMode = false;
+    unattemptedOnlyMode = true;
+  }
+
+  showPage("quiz");
+  renderQuestion();
+}
 
   
 document.getElementById("filter").onchange = renderList;
@@ -922,6 +946,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
