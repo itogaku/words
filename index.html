@@ -805,8 +805,12 @@ function loadData() {
   
 function toggleWrongOnlyMode() {
   wrongOnlyMode = !wrongOnlyMode;
+  unattemptedOnlyMode = false;
+
+  updateProgressMini();   // ← これ
   renderQuestion();
 }
+
 
 function resetProgress() {
   if (!confirm("リセットしますか？")) return;
@@ -897,15 +901,16 @@ function showPage(id) {
 }
 
 function goToQuiz() {
-  // 不正解のみ出題モード中なら
   if (wrongOnlyMode) {
     wrongOnlyMode = false;
     unattemptedOnlyMode = true;
   }
 
+  updateProgressMini();   // ← これ
   showPage("quiz");
   renderQuestion();
 }
+
 
   
 document.getElementById("filter").onchange = renderList;
@@ -983,6 +988,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
