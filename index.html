@@ -74,8 +74,8 @@ body {
 
 /* 入力欄 */
 #answerInput {
-  font-size: 18px;
-  padding: 6px;
+  font-size: 22px;
+  padding: 10px;
   width: 80%;
   max-width: 320px;
   text-align: center;
@@ -144,6 +144,26 @@ body {
   top: 0;
 }
 
+#progressMini {
+  font-size: 12px;
+  color: #666;
+  align-self: flex-end;
+}
+
+#resultArea {
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+#actionButtons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
 
   
 </style>
@@ -162,19 +182,24 @@ body {
 
 <section id="quiz" class="page">
   <div id="quizTop">
-    <div>
-      <span id="meaning"></span>
-      <span id="judge"></span>
-    </div>
 
-    <div id="correctWord" class="hidden"></div>
+    <div id="meaning"></div>
+
+    <div id="resultArea">
+      <span id="judge"></span>
+      <div id="correctWord" class="hidden"></div>
+    </div>
 
     <input id="answerInput" type="text" readonly>
 
-    <button id="checkBtn">回答</button>
-    <button id="nextBtn" class="hidden">次へ</button>
-    <button id="toggleBtn" class="hidden">正誤切替</button>
+    <div id="actionButtons">
+      <button id="checkBtn">回答</button>
+      <button id="nextBtn" class="hidden">次へ</button>
+      <button id="toggleBtn" class="hidden">正誤切替</button>
+    </div>
+
   </div>
+
 
   <div id="keyboard"></div>
   <select id="keyboardSelect">
@@ -651,7 +676,9 @@ const input = document.getElementById("answerInput");
 const checkBtn = document.getElementById("checkBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toggleBtn = document.getElementById("toggleBtn");
+const progressMini = document.getElementById("progressMini");
 
+  
 function getNextWord() {
   const list = words.filter(w => {
     const s = progress[w.word];
@@ -663,7 +690,10 @@ function getNextWord() {
 function renderQuestion() {
   current = getNextWord();
   lastJudge = null;
+　progressMini.textContent =
+  `${Object.keys(progress).length + 1} / ${words.length}`;
 
+  
   if (!current) {
     meaning.textContent = "学習完了！";
     return;
@@ -872,6 +902,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
