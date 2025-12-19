@@ -5,96 +5,94 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+/* ===== 基本 ===== */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   padding: 8px;
 }
 
+/* ===== ページ切替 ===== */
 .page {
   position: absolute;
-  top: 36px;          /* 上の操作ボタン分 */
+  top: 36px;
   left: 0;
   width: 100%;
   height: calc(100dvh - 36px);
-  background: white; 
+  background: white;
   z-index: 1;
 }
-  
+
 .hidden {
   display: none;
 }
 
-/* 問題画面はスクロールさせない */
+/* ===== 問題画面 ===== */
 #quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
   overflow: hidden;
 }
 
-/* 一覧画面は必ずスクロール */
-#list {
-  overflow-y: auto;
-}
-
-/* ===== 出題画面 ===== */
-#quiz {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  padding-top: 36px;
-}
-
+/* 上部（問題・入力） */
 #quizTop {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  align-items: center;
 }
 
-
+/* 問題文 */
 #meaning {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
+  text-align: center;
+  margin: 8px 0;
 }
 
+/* 正誤 */
 #judge {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
+  line-height: 1;
 }
 
-.correct { color: green; }
-.wrong { color: red; }
+.correct { color: #2e7d32; }
+.wrong   { color: #c62828; }
 
+/* 正解表示 */
 #correctWord {
   font-size: 16px;
+  color: #555;
 }
 
+/* 入力欄 */
 #answerInput {
   font-size: 18px;
   padding: 6px;
+  width: 80%;
+  max-width: 320px;
   text-align: center;
 }
 
+/* ボタン共通 */
 #quiz button {
   font-size: 16px;
-  padding: 6px;
+  padding: 6px 10px;
 }
 
 /* ===== キーボード ===== */
 #keyboard {
+  margin-top: auto; /* ← これが重要：下に固定される */
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-#keyboard button {
-  padding: 6px 0;
-}
-
-.key-wide {
-  grid-column: span 2;
 }
 
 .key-row {
@@ -106,49 +104,28 @@ body {
 .key-row button {
   min-width: 32px;
   height: 32px;
-}
-
-.key {
-  min-width: 32px;
-  height: 32px;
   font-size: 14px;
 }
 
-/* shift / del を特別扱いしない */
-.key[data-func] {
-  background: inherit;
-  font-weight: normal;
-}
-
-  
 /* ===== 上部操作 ===== */
 #quizControls {
   position: static;
-  transform: none;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 #quizControls button {
   font-size: 12px;
-  padding: 4px;
+  padding: 4px 6px;
 }
 
-/* ===== 一覧 ===== */
+/* ===== 一覧画面 ===== */
 #list {
-  padding-top: 36px;
+  padding: 8px;
+  overflow-y: auto;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 1px solid #aaa;
-  padding: 4px;
-}
-
-  #wordTable {
+/* ===== 一覧テーブル ===== */
+#wordTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
@@ -166,6 +143,7 @@ td, th {
   position: sticky;
   top: 0;
 }
+
 
   
 </style>
@@ -894,6 +872,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
