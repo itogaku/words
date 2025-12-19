@@ -663,7 +663,7 @@ const progressMini = document.getElementById("progressMini");
 
 function getNextWord() {
   const list = words.filter(w => {
-    const s = progress[w.word];
+    const s = progress[w.word.toLowerCase()];
     return wrongOnlyMode ? s === "wrong" : s !== "correct";
   });
   return list.length ? list[Math.floor(Math.random() * list.length)] : null;
@@ -731,11 +731,15 @@ toggleBtn.onclick = () => {
 
 nextBtn.onclick = () => {
   if (!current || !lastJudge) return;
-  progress[current.word] = lastJudge;
+
+  const key = current.word.toLowerCase();   // ★ 必須
+  progress[key] = lastJudge;
+
   localStorage.setItem("progress", JSON.stringify(progress));
-  updateProgressMini();   // ← 追加
+  updateProgressMini();
   renderQuestion();
 };
+
 
 
 function loadData() {
@@ -788,8 +792,9 @@ function renderList() {
 
     const tdStatus = document.createElement("td");
     tdStatus.textContent =
-      progress[w.word] === "correct" ? "◎" :
-      progress[w.word] === "wrong"   ? "✕" : "";
+    progress[w.word.toLowerCase()] === "correct" ? "〇" :
+    progress[w.word.toLowerCase()] === "wrong"   ? "×" : "";
+
 
     tr.appendChild(tdWord);
     tr.appendChild(tdMeaning);
@@ -889,6 +894,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
