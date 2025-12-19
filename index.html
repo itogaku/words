@@ -810,14 +810,14 @@ function renderList() {
 
     const tdStatus = document.createElement("td");
 
-    const key = w.word.toLowerCase();
+    constcons = w.word.toLowerCase();
     const state = progress[key];
 
     tdStatus.textContent =
       state === "correct" ? "〇" :
       state === "wrong"   ? "×" : "";
 
-    // ★ クリックで状態切替
+    // クリックで循環
     tdStatus.style.cursor = "pointer";
     tdStatus.onclick = () => {
       if (!progress[key]) {
@@ -827,8 +827,8 @@ function renderList() {
         // 〇 → ×
         progress[key] = "wrong";
       } else if (progress[key] === "wrong") {
-        // × → 〇
-        progress[key] = "correct";
+        // × → 未出題
+        delete progress[key];
       }
 
       localStorage.setItem("progress", JSON.stringify(progress));
@@ -946,6 +946,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
