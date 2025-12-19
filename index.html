@@ -144,6 +144,11 @@ body {
   top: 0;
 }
 
+#progressMini {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
 
   
 </style>
@@ -162,6 +167,7 @@ body {
 
 <section id="quiz" class="page">
   <div id="quizTop">
+    <div id="progressMini"></div>
     <div>
       <span id="meaning"></span>
       <span id="judge"></span>
@@ -630,6 +636,7 @@ let lastJudge = null;
 let wrongOnlyMode = false;
 let listBuilt = false;
 let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
+
   
 const keyboardLayouts = {
   mobile: [
@@ -652,6 +659,8 @@ const input = document.getElementById("answerInput");
 const checkBtn = document.getElementById("checkBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toggleBtn = document.getElementById("toggleBtn");
+const progressMini = document.getElementById("progressMini");
+
 
 function getNextWord() {
   const list = words.filter(w => {
@@ -660,6 +669,13 @@ function getNextWord() {
   });
   return list.length ? list[Math.floor(Math.random() * list.length)] : null;
 }
+
+function updateProgressMini() {
+  if (!progressMini) return;
+  progressMini.textContent =
+    `${Object.keys(progress).length} / ${words.length}`;
+}
+
 
 function renderQuestion() {
   current = getNextWord();
@@ -718,12 +734,14 @@ nextBtn.onclick = () => {
   if (!current || !lastJudge) return;
   progress[current.word] = lastJudge;
   localStorage.setItem("progress", JSON.stringify(progress));
+  updateProgressMini();   // ← 追加
   renderQuestion();
 };
 
 
 function loadData() {
   progress = JSON.parse(localStorage.getItem("progress") || "{}");
+  updateProgressMini();   // ← 追加
   renderQuestion();
 }
   
@@ -873,6 +891,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
