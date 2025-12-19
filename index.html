@@ -99,6 +99,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  flex-shrink: 0;     /* ← 追加 */
+  min-height: 140px;  /* ← 追加（仮でOK） */
 }
 
 .key-row {
@@ -910,6 +913,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
