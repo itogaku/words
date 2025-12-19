@@ -25,6 +25,10 @@ body {
   height: calc(100dvh - 36px);
   background: white;
   z-index: 1;
+
+  display: flex;              /* ← 追加 */
+  flex-direction: column;     /* ← 追加 */
+
 }
 
 .hidden {
@@ -38,7 +42,7 @@ body {
   gap: 8px;
   padding: 8px;
   overflow: hidden;
-  height: 100%;
+  flex: 1; 
 }
 
 /* 上部（問題・入力） */
@@ -47,6 +51,7 @@ body {
   flex-direction: column;
   gap: 6px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 /* 問題文 */
@@ -903,6 +908,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
