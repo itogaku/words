@@ -666,7 +666,7 @@ const input = document.getElementById("answerInput");
 const checkBtn = document.getElementById("checkBtn");
 const nextBtn = document.getElementById("nextBtn");
 const toggleBtn = document.getElementById("toggleBtn");
-const progressMini = document.getElementById("progressMini");
+
 
 function getNextWord() {
   const list = words.filter(w => {
@@ -679,9 +679,7 @@ function getNextWord() {
 function renderQuestion() {
   current = getNextWord();
   lastJudge = null;
-  progressMini.textContent =
-    `${Object.keys(progress).length + 1} / ${words.length}`;
-  
+ 
   if (!current) {
     meaning.textContent = "学習完了！";
     return;
@@ -890,6 +888,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
