@@ -154,6 +154,25 @@ body {
   background: #eef;
 }
 
+/* 正解カード */
+#correctWord {
+  min-height: 2em;          /* ← 重要：常に場所を確保 */
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #555;
+  font-size: 16px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+/* 不正解時だけ強調 */
+#correctWord.show {
+  background: #fff3e0;
+  color: #d84315;
+  font-weight: bold;
+}
+
   
 </style>
 </head>
@@ -177,7 +196,8 @@ body {
       <span id="judge"></span>
     </div>
 
-    <div id="correctWord" class="hidden"></div>
+    <div id="correctWord"></div>
+
 
     <input id="answerInput" type="text" readonly>
 
@@ -707,7 +727,8 @@ function renderQuestion() {
   judge.textContent = "";
   judge.className = "";
   input.value = "";
-  correctWord.classList.add("hidden");
+  correctWord.textContent = "";
+  correctWord.classList.remove("show");
   checkBtn.disabled = false;
   nextBtn.classList.add("hidden");
   toggleBtn.classList.add("hidden");
@@ -722,7 +743,8 @@ checkBtn.onclick = () => {
 
   if (!ok) {
     correctWord.textContent = "答え: " + current.word;
-    correctWord.classList.remove("hidden");
+    correctWord.classList.add("show");
+
   }
 
   checkBtn.disabled = true;
@@ -734,16 +756,21 @@ toggleBtn.onclick = () => {
   if (!current) return;
 
   if (lastJudge === "correct") {
+    // ◎ → ✕
     lastJudge = "wrong";
     judge.textContent = "✕";
     judge.className = "wrong";
+
     correctWord.textContent = "答え: " + current.word;
-    correctWord.classList.remove("hidden");
+    correctWord.classList.add("show");   // ← 強調ON
+
   } else {
+    // ✕ → ◎
     lastJudge = "correct";
     judge.textContent = "◎";
     judge.className = "correct";
-    correctWord.classList.add("hidden");
+
+    correctWord.classList.remove("show"); // ← 強調OFF
   }
 };
 
@@ -946,6 +973,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
