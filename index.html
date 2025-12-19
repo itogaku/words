@@ -173,6 +173,12 @@ body {
   font-weight: bold;
 }
 
+#actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
   
 </style>
 </head>
@@ -201,9 +207,12 @@ body {
 
     <input id="answerInput" type="text" readonly>
 
-    <button id="checkBtn">回答</button>
-    <button id="nextBtn" class="hidden">次へ</button>
-    <button id="toggleBtn" class="hidden">正誤切替</button>
+    <div id="actionButtons">
+      <button id="checkBtn">回答</button>
+      <button id="nextBtn" class="hidden">次へ</button>
+      <button id="toggleBtn" class="hidden">正誤切替</button>
+    </div>
+
   </div>
 
   <div id="keyboard"></div>
@@ -988,6 +997,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
