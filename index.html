@@ -203,6 +203,10 @@ body {
   color: #666;
 }
 
+#wordTable td div {
+  line-height: 1.3;
+}
+
   
 </style>
 </head>
@@ -920,6 +924,14 @@ function renderList() {
       tdMeaning.appendChild(exDiv);
     }
 
+    if (w.exampleJa) {
+      const jaDiv = document.createElement("div");
+      jaDiv.textContent = w.exampleJa;
+      jaDiv.style.fontSize = "12px";
+      jaDiv.style.color = "#666";
+      jaDiv.style.marginTop = "2px";
+      tdMeaning.appendChild(jaDiv);
+    }
 
     const tdStatus = document.createElement("td");
 
@@ -1060,6 +1072,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
