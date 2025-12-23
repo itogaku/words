@@ -28,9 +28,8 @@ body {
 }
 
 .hidden {
-  visibility: hidden;
+  display: none;
 }
-
 
 /* ===== 問題画面 ===== */
 #quiz {
@@ -156,15 +155,10 @@ body {
 }
 
 #progressMini {
-  font-size: 12px;
-  color: #555;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
 }
-
-body.wrong-mode #progressMini {
-  color: #c62828;
-  font-weight: bold;
-}
-
 
 #wordTable td:last-child:hover {
   background: #eef;
@@ -175,7 +169,7 @@ body.wrong-mode #progressMini {
   min-height: 2em;          /* ← 重要：常に場所を確保 */
   padding: 6px 10px;
   border-radius: 6px;
-  color: #777;
+  color: #555;
   font-weight: 500;
   font-size: 16px;
   text-align: center;
@@ -217,19 +211,16 @@ body.wrong-mode #progressMini {
 
 #answerExample {
   font-size: 14px;
-  color: #444;
+  color: #555;
+  margin-top: 4px;
 }
 
 /* 未回答（デフォルト） */
 #resultArea {
-  min-height: 90px;        /* ← ここで高さを確保 */
-  margin: 8px 0;
+  min-height: 90px;
   text-align: center;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
+  background: transparent;
+  border-radius: 10px;
 }
 
 /* 回答後 共通 */
@@ -248,13 +239,6 @@ body.wrong-mode #progressMini {
   background: #fdf1f1;   /* うすい赤 */
 }
 
-#answerArea {
-  min-height: 72px;        /* ← ここが重要 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* 中央寄せ */
-  gap: 4px;
-}
 
 
 
@@ -287,10 +271,9 @@ body.wrong-mode #progressMini {
     <!-- 判定・答え -->
     <div id="resultArea">
       <div id="judge"></div>
-      <div id="correctWord"></div>
-      <div id="answerExample"></div>
+      <div id="correctWord" class="hidden"></div>
+      <div id="answerExample" class="hidden"></div>
     </div>
-
 
     <!-- 入力 -->
     <input id="answerInput" type="text" readonly>
@@ -1138,51 +1121,3 @@ buildKeyboard();
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
