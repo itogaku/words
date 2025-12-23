@@ -249,6 +249,13 @@ body {
   background: #fdf1f1;   /* うすい赤 */
 }
 
+#resultBlock {
+  min-height: 150px;     /* ← これが効く */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
 
 
 
@@ -281,21 +288,22 @@ body {
     </div>
 
     <!-- 判定・答え -->
-    <div id="resultArea">
-      <div id="judge"></div>
-      <div id="correctWord" class="hidden"></div>
-      <div id="answerExample" class="hidden"></div>
+    <div id="resultBlock">
+      <div id="resultArea">
+        <div id="judge"></div>
+        <div id="correctWord"></div>
+        <div id="answerExample"></div>
+      </div>
+
+      <div id="actionButtons">
+        <button id="checkBtn">回答</button>
+        <button id="nextBtn" class="hidden">次へ</button>
+        <button id="toggleBtn" class="hidden">正誤切替</button>
+      </div>
     </div>
 
-    <!-- 入力 -->
+        <!-- 入力 -->
     <input id="answerInput" type="text" readonly>
-
-    <!-- 操作 -->
-    <div id="actionButtons">
-      <button id="checkBtn">回答</button>
-      <button id="nextBtn" class="hidden">次へ</button>
-      <button id="toggleBtn" class="hidden">正誤切替</button>
-    </div>
 
   </div>
 
@@ -937,9 +945,11 @@ function resetProgress() {
 
 function renderList() {
   const table = document.getElementById("wordTable");
+  const filter = document.getElementById("filter")?.value || "all";
+
   table.innerHTML = "";
 
-  // ヘッダー
+  /* ===== ヘッダー ===== */
   const thead = document.createElement("thead");
   const headRow = document.createElement("tr");
 
@@ -952,37 +962,39 @@ function renderList() {
   thead.appendChild(headRow);
   table.appendChild(thead);
 
-  // 本体
+  /* ===== 本体 ===== */
   const tbody = document.createElement("tbody");
 
   words.forEach(w => {
+    const key = w.word.toLowerCase();
+    const state = progress[key]; // "correct" | "wrong" | undefined
+
+    /* --- フィルター判定 --- */
+    if (filter === "correct" && state !== "correct") return;
+    if (filter === "wrong" && state !== "wrong") return;
+    if (filter === "unanswered" && state !== undefined) return;
+
     const tr = document.createElement("tr");
 
+    /* 単語 */
     const tdWord = document.createElement("td");
     tdWord.textContent = w.word;
 
+    /* 意味・例文 */
     const tdMeaning = document.createElement("td");
 
     const meaningDiv = document.createElement("div");
     meaningDiv.textContent = w.meaning;
-
     tdMeaning.appendChild(meaningDiv);
 
     if (w.example) {
       const exDiv = document.createElement("div");
-
-  // ★ 伏字を単語で埋める
-      const filledExample =
-        w.example.replace("_____", w.word);
-
-      exDiv.textContent = filledExample;
+      exDiv.textContent = w.example.replace("_____", w.word);
       exDiv.style.fontSize = "12px";
       exDiv.style.color = "#555";
       exDiv.style.marginTop = "2px";
-
       tdMeaning.appendChild(exDiv);
     }
-
 
     if (w.exampleJa) {
       const jaDiv = document.createElement("div");
@@ -992,36 +1004,27 @@ function renderList() {
       tdMeaning.appendChild(jaDiv);
     }
 
-
+    /* 状態 */
     const tdStatus = document.createElement("td");
-
-    const key = w.word.toLowerCase();
-    const state = progress[key];
-
     tdStatus.textContent =
       state === "correct" ? "〇" :
       state === "wrong"   ? "×" : "";
 
-    // クリックで循環
     tdStatus.style.cursor = "pointer";
+
+    /* ワンタッチ循環 */
     tdStatus.onclick = () => {
       if (!progress[key]) {
-        // 未出題 → 〇
         progress[key] = "correct";
       } else if (progress[key] === "correct") {
-        // 〇 → ×
         progress[key] = "wrong";
-      } else if (progress[key] === "wrong") {
-        // × → 未出題
+      } else {
         delete progress[key];
       }
 
       localStorage.setItem("progress", JSON.stringify(progress));
       renderList();
     };
-
-
-
 
     tr.appendChild(tdWord);
     tr.appendChild(tdMeaning);
@@ -1131,6 +1134,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
