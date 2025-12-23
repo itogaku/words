@@ -115,6 +115,10 @@ body {
   line-height: 1;
 }
 
+#keyboard button.active {
+  background: #ddd;
+}
+
 
 /* ===== 上部操作 ===== */
 #quizControls {
@@ -1064,10 +1068,9 @@ function buildKeyboard() {
         btn.classList.toggle("active", upper);
 
         btn.onclick = () => {
-          upper = true;          // 一時ON
+          upper = !upper;      // ← 押すたびに ON / OFF
           buildKeyboard();
         };
-
       } else if (ch === "del") {
         btn.textContent = "⌫";
 
@@ -1113,6 +1116,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
