@@ -35,10 +35,23 @@ body {
 #quiz {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
-  overflow: hidden;
+  height: calc(100dvh - 36px);
 }
+
+/* 上：伸びてOK */
+#quizMain {
+  flex: 1;
+  overflow-y: auto;
+  text-align: center;
+}
+
+/* 下：完全固定 */
+#quizBottom {
+  flex-shrink: 0;
+  padding-top: 8px;
+  background: white;
+}
+
 
 /* 上部（問題・入力） */
 #quizTop {
@@ -275,11 +288,9 @@ body {
 <main>
 
 <section id="quiz" class="page">
-  <div id="quizTop">
 
-    <div id="progressMini"></div>
-    
-    <!-- 問題 -->
+  <!-- 上：問題・判定（動いてOK） -->
+  <div id="quizMain">
     <div id="meaning"></div>
 
     <div id="exampleArea">
@@ -287,34 +298,34 @@ body {
       <div id="exampleJa"></div>
     </div>
 
-    <!-- 判定・答え -->
-    <div id="resultBlock">
-      <div id="resultArea">
-        <div id="judge"></div>
-        <div id="correctWord"></div>
-        <div id="answerExample"></div>
-      </div>
-
-      <div id="actionButtons">
-        <button id="checkBtn">回答</button>
-        <button id="nextBtn" class="hidden">次へ</button>
-        <button id="toggleBtn" class="hidden">正誤切替</button>
-      </div>
+    <div id="resultArea">
+      <div id="judge"></div>
+      <div id="correctWord"></div>
+      <div id="answerExample"></div>
     </div>
-
-        <!-- 入力 -->
-    <input id="answerInput" type="text" readonly>
-
   </div>
 
+  <!-- 下：固定操作エリア -->
+  <div id="quizBottom">
 
-  <div id="keyboard"></div>
-  <select id="keyboardSelect">
-  　<option value="mobile">アルファベット配列</option>
-  　<option value="qwerty">キーボード配列（QWERTY）</option>
-　</select>
+    <input id="answerInput" type="text" readonly>
 
+    <div id="actionButtons">
+      <button id="checkBtn">回答</button>
+      <button id="nextBtn" class="hidden">次へ</button>
+      <button id="toggleBtn" class="hidden">正誤切替</button>
+    </div>
+
+    <div id="keyboard"></div>
+
+    <select id="keyboardSelect">
+      <option value="mobile">アルファベット配列</option>
+      <option value="qwerty">QWERTY</option>
+    </select>
+
+  </div>
 </section>
+
 
 <section id="list" class="page hidden">
   <select id="filter">
@@ -1134,6 +1145,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
