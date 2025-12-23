@@ -28,8 +28,9 @@ body {
 }
 
 .hidden {
-  display: none;
+  visibility: hidden;
 }
+
 
 /* ===== 問題画面 ===== */
 #quiz {
@@ -242,6 +243,13 @@ body {
   background: #fdf1f1;   /* うすい赤 */
 }
 
+#answerArea {
+  min-height: 72px;        /* ← ここが重要 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 中央寄せ */
+  gap: 4px;
+}
 
 
 
@@ -1125,6 +1133,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
