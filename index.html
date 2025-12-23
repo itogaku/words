@@ -207,6 +207,12 @@ body {
   line-height: 1.3;
 }
 
+#answerExample {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
   
 </style>
 </head>
@@ -734,6 +740,7 @@ const toggleBtn = document.getElementById("toggleBtn");
 const progressMini = document.getElementById("progressMini");
 const exampleEn = document.getElementById("exampleEn");
 const exampleJa = document.getElementById("exampleJa");
+const answerExample = document.getElementById("answerExample");
 
 
 function getNextWord() {
@@ -801,6 +808,9 @@ function renderQuestion() {
   nextBtn.classList.add("hidden");
   toggleBtn.classList.add("hidden");
 
+answerExample.classList.add("hidden");
+answerExample.textContent = "";
+
 }
 
 checkBtn.onclick = () => {
@@ -811,11 +821,20 @@ checkBtn.onclick = () => {
   judge.className = ok ? "correct" : "wrong";
 
   if (!ok) {
-    correctWord.textContent =
-      "答え: " + current.word +
-      (current.example ? " / " + current.example : "");
-    correctWord.classList.add("show");
+  // 単語
+    correctWord.textContent = "答え: " + current.word;
+    correctWord.classList.remove("hidden");
+
+  // 例文（伏字を単語に置換）
+    if (current.example) {
+      const filledExample =
+        current.example.replace("_____", current.word);
+
+      answerExample.textContent = filledExample;
+      answerExample.classList.remove("hidden");
+      }
   }
+
 
 
   checkBtn.disabled = true;
@@ -1070,6 +1089,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
