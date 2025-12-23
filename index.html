@@ -74,6 +74,7 @@ body {
 
 /* 入力欄 */
 #answerInput {
+  margin-top: 8px;
   font-size: 18px;
   padding: 6px;
   width: 80%;
@@ -213,6 +214,12 @@ body {
   margin-top: 4px;
 }
 
+#resultArea {
+  margin: 6px 0;
+  text-align: center;
+}
+
+
   
 </style>
 </head>
@@ -230,21 +237,26 @@ body {
 
 <section id="quiz" class="page">
   <div id="quizTop">
-    <div id="progressMini"></div>
-    <div>
-      <span id="meaning"></span>
-      <div id="exampleArea">
-        <div id="exampleEn"></div>
-        <div id="exampleJa"></div>
-      </div>
-      <span id="judge"></span>
+
+    <!-- 問題 -->
+    <div id="meaning"></div>
+
+    <div id="exampleArea">
+      <div id="exampleEn"></div>
+      <div id="exampleJa"></div>
     </div>
 
-    <div id="correctWord" class="hidden"></div>
-    <div id="answerExample" class="hidden"></div>
+    <!-- 判定・答え -->
+    <div id="resultArea">
+      <div id="judge"></div>
+      <div id="correctWord" class="hidden"></div>
+      <div id="answerExample" class="hidden"></div>
+    </div>
 
+    <!-- 入力 -->
     <input id="answerInput" type="text" readonly>
 
+    <!-- 操作 -->
     <div id="actionButtons">
       <button id="checkBtn">回答</button>
       <button id="nextBtn" class="hidden">次へ</button>
@@ -252,6 +264,7 @@ body {
     </div>
 
   </div>
+
 
   <div id="keyboard"></div>
   <select id="keyboardSelect">
@@ -1104,6 +1117,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
