@@ -855,15 +855,16 @@ checkBtn.onclick = () => {
   const ok = input.value.toLowerCase() === current.word.toLowerCase();
   lastJudge = ok ? "correct" : "wrong";
 
-  // 判定表示
   judge.textContent = ok ? "◎" : "✕";
   judge.className = ok ? "correct" : "wrong";
 
-  // 答え（単語）は常に表示
+  // ★ クラスを必ずリセットしてから付ける
+  resultArea.classList.remove("correct", "wrong");
+  resultArea.classList.add("show", ok ? "correct" : "wrong");
+
   correctWord.textContent = "答え: " + current.word;
   correctWord.classList.remove("hidden");
 
-  // ★ 正解・不正解どちらでも例文を表示
   if (current.example && answerExample) {
     answerExample.textContent =
       current.example.replace(/_+/g, current.word);
@@ -873,12 +874,6 @@ checkBtn.onclick = () => {
   checkBtn.disabled = true;
   nextBtn.classList.remove("hidden");
   toggleBtn.classList.remove("hidden");
-
-  // 結果エリアを「答え表示状態」にする
-  resultArea.classList.add("show");
-  resultArea.classList.toggle("correct", ok);
-  resultArea.classList.toggle("wrong", !ok);
-
 };
 
 toggleBtn.onclick = () => {
@@ -1138,6 +1133,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
