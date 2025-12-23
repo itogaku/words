@@ -219,21 +219,26 @@ body {
 }
 
 #resultArea {
-  margin: 12px 0;
-  padding: 10px 8px;
-
-  background: #f6f7f8;        /* ほんのり色 */
-  border-radius: 10px;
-
-  min-height: 90px;           /* 既に入れているならそのまま */
+  min-height: 90px;
   text-align: center;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
+  /* 未回答時 */
+  background: transparent;
+  border-radius: 10px;
 }
 
+#resultArea.show {
+  background: #f6f7f8;
+  padding: 10px 8px;
+}
+
+#resultArea.show.correct {
+  background: #f0f8f3;
+}
+
+#resultArea.show.wrong {
+  background: #fdf1f1;
+}
 
 
   
@@ -840,6 +845,8 @@ function renderQuestion() {
   answerExample.textContent = "";
   answerExample.classList.add("hidden");
 
+  resultArea.classList.remove("show", "correct", "wrong");
+
 }
 
 checkBtn.onclick = () => {
@@ -864,6 +871,12 @@ checkBtn.onclick = () => {
   checkBtn.disabled = true;
   nextBtn.classList.remove("hidden");
   toggleBtn.classList.remove("hidden");
+
+  // 結果エリアを「答え表示状態」にする
+  resultArea.classList.add("show");
+  resultArea.classList.toggle("correct", ok);
+  resultArea.classList.toggle("wrong", !ok);
+
 };
 
 toggleBtn.onclick = () => {
@@ -1123,6 +1136,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
