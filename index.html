@@ -45,13 +45,19 @@ body {
   text-align: center;
 }
 
-/* 下：完全固定 */
-#quizBottom {
+/* 中：固定 */
+#quizControls {
   flex-shrink: 0;
-  padding-top: 8px;
+  padding: 8px 0;
+  text-align: center;
   background: white;
 }
 
+#quizKeyboard {
+  flex-shrink: 0;
+  padding-bottom: 4px;
+  background: white;
+}
 
 /* 上部（問題・入力） */
 #quizTop {
@@ -83,13 +89,15 @@ body {
 
 /* 入力欄 */
 #answerInput {
-  margin-top: 6px;
-  margin-bottom: 6px;
+  display: block;
+  margin: 6px auto;
   font-size: 20px;
-  padding: 8px;
   width: 85%;
   max-width: 340px;
+  text-align: center;
 }
+
+
 
 
 /* ボタン共通 */
@@ -289,7 +297,7 @@ body {
 
 <section id="quiz" class="page">
 
-  <!-- 上：問題・判定（動いてOK） -->
+  <!-- 上：問題エリア -->
   <div id="quizMain">
     <div id="meaning"></div>
 
@@ -305,9 +313,8 @@ body {
     </div>
   </div>
 
-  <!-- 下：固定操作エリア -->
-  <div id="quizBottom">
-
+  <!-- 中：入力＋ボタン -->
+  <div id="quizControls">
     <input id="answerInput" type="text" readonly>
 
     <div id="actionButtons">
@@ -315,15 +322,18 @@ body {
       <button id="nextBtn" class="hidden">次へ</button>
       <button id="toggleBtn" class="hidden">正誤切替</button>
     </div>
+  </div>
 
+  <!-- 下：キーボード -->
+  <div id="quizKeyboard">
     <div id="keyboard"></div>
 
     <select id="keyboardSelect">
       <option value="mobile">アルファベット配列</option>
       <option value="qwerty">QWERTY</option>
     </select>
-
   </div>
+
 </section>
 
 
@@ -1145,6 +1155,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
