@@ -38,18 +38,10 @@ body {
   height: calc(100dvh - 36px);
 }
 
-/* ===== キーボード以外の固定枠 ===== */
-#quizUpper {
-  flex: 1;
-  display: flex;
-  justify-content: center;   /* ← 縦方向の安定 */
-  align-items: center;       /* ← これが効く */
-}
-  
 /* 上：伸びてOK */
 #quizContent {
-  width: 100%;
-  max-width: 480px;
+  flex: 1;
+  overflow-y: auto;
   text-align: center;
 }
 
@@ -296,35 +288,40 @@ body {
 
 <section id="quiz" class="page">
 
-  <!-- 上：キーボード以外をまとめる -->
-  <div id="quizUpper">
-    <div id="quizContent">
-      <div id="meaning"></div>
+  <!-- 上：キーボード以外 -->
+  <div id="quizContent">
 
-      <div id="exampleArea">
-        <div id="exampleEn"></div>
-        <div id="exampleJa"></div>
-      </div>
+    <div id="meaning"></div>
 
-      <div id="resultArea">
-        <div id="judge"></div>
-        <div id="correctWord"></div>
-        <div id="answerExample"></div>
-      </div>
-
-      <input id="answerInput" type="text" readonly>
-
-      <div id="actionButtons">
-        <button id="checkBtn">回答</button>
-        <button id="nextBtn" class="hidden">次へ</button>
-        <button id="toggleBtn" class="hidden">正誤切替</button>
-      </div>
+    <div id="exampleArea">
+      <div id="exampleEn"></div>
+      <div id="exampleJa"></div>
     </div>
+
+    <div id="resultArea">
+      <div id="judge"></div>
+      <div id="correctWord"></div>
+      <div id="answerExample"></div>
+    </div>
+
+    <input id="answerInput" type="text" readonly>
+
+    <div id="actionButtons">
+      <button id="checkBtn">回答</button>
+      <button id="nextBtn" class="hidden">次へ</button>
+      <button id="toggleBtn" class="hidden">正誤切替</button>
+    </div>
+
   </div>
 
   <!-- 下：キーボード -->
   <div id="quizKeyboard">
     <div id="keyboard"></div>
+
+    <select id="keyboardSelect">
+      <option value="mobile">アルファベット配列</option>
+      <option value="qwerty">QWERTY</option>
+    </select>
   </div>
 
 </section>
@@ -342,6 +339,7 @@ body {
 </section>
 
 </main>
+
 
 
 
@@ -1149,18 +1147,6 @@ buildKeyboard();
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
