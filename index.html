@@ -215,9 +215,14 @@ body {
 }
 
 #resultArea {
-  margin: 6px 0;
+  min-height: 90px;   /* ← ここが効く */
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
 }
+
 
 
   
@@ -1117,6 +1122,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
