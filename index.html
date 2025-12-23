@@ -935,11 +935,19 @@ function renderList() {
 
     if (w.example) {
       const exDiv = document.createElement("div");
-      exDiv.textContent = w.example;
+
+  // ★ 伏字を単語で埋める
+      const filledExample =
+        w.example.replace("_____", w.word);
+
+      exDiv.textContent = filledExample;
       exDiv.style.fontSize = "12px";
       exDiv.style.color = "#555";
+      exDiv.style.marginTop = "2px";
+
       tdMeaning.appendChild(exDiv);
     }
+
 
     if (w.exampleJa) {
       const jaDiv = document.createElement("div");
@@ -1089,6 +1097,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
