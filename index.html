@@ -822,8 +822,10 @@ checkBtn.onclick = () => {
 
   if (!ok) {
   // 単語
-    correctWord.textContent = "答え: " + current.word;
-    correctWord.classList.remove("hidden");
+    correctWord.textContent =
+      "答え: " + current.word +
+      (current.example ? " / " + current.example : "");
+    correctWord.classList.add("show");
 
   // 例文（伏字を単語に置換）
     if (current.example) {
@@ -834,8 +836,6 @@ checkBtn.onclick = () => {
       answerExample.classList.remove("hidden");
       }
   }
-
-
 
   checkBtn.disabled = true;
   nextBtn.classList.remove("hidden");
@@ -1097,6 +1097,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
