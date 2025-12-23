@@ -50,11 +50,10 @@ body {
 
 /* 問題文 */
 #meaning {
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  margin: 8px 0;
+  font-size: 24px;
+  margin: 12px 0 8px;
 }
+
 
 /* 正誤 */
 #judge {
@@ -71,13 +70,14 @@ body {
 
 /* 入力欄 */
 #answerInput {
-  margin-top: 8px;
-  font-size: 18px;
-  padding: 6px;
-  width: 80%;
-  max-width: 320px;
-  text-align: center;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  font-size: 20px;
+  padding: 8px;
+  width: 85%;
+  max-width: 340px;
 }
+
 
 /* ボタン共通 */
 #quiz button {
@@ -184,17 +184,22 @@ body {
 }
 
 #actionButtons {
+  min-height: 40px;   /* ← 表示/非表示でズレない */
   display: flex;
   gap: 8px;
   justify-content: center;
 }
 
+
 #exampleArea {
   font-size: 14px;
   color: #444;
-  margin: 6px 0;
-  text-align: center;
+  margin: 6px 0 10px;
+  padding: 6px 8px;
+  background: #fafafa;
+  border-radius: 6px;
 }
+
 
 #exampleEn {
   font-style: italic;
@@ -218,18 +223,19 @@ body {
 /* 未回答（デフォルト） */
 #resultArea {
   min-height: 90px;
-  margin: 8px 0;
+  margin: 10px 0;
+  padding: 10px 8px;        /* ← 常に付ける */
   display: flex;
   text-align: center;
-  background: transparent;
   border-radius: 10px;
   flex-direction: column;
   justify-content: center;
+  background: transparent;
 }
+
 
 /* 回答後 共通 */
 #resultArea.show {
-  padding: 10px 8px;
   background: #f6f7f8;   /* ベース色（ほぼ白） */
 }
 
@@ -1125,6 +1131,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
