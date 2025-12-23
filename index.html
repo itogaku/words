@@ -835,24 +835,19 @@ checkBtn.onclick = () => {
   const ok = input.value.toLowerCase() === current.word.toLowerCase();
   lastJudge = ok ? "correct" : "wrong";
 
+  // 判定表示
   judge.textContent = ok ? "◎" : "✕";
   judge.className = ok ? "correct" : "wrong";
 
-  if (!ok) {
-  // 単語
-    correctWord.textContent =
-      "答え: " + current.word +
-      (current.example ? " / " + current.example : "");
-    correctWord.classList.add("show");
+  // 答え（単語）は常に表示
+  correctWord.textContent = "答え: " + current.word;
+  correctWord.classList.remove("hidden");
 
-  // 例文（伏字を単語に置換）
-    if (current.example) {
-      const filledExample =
-        current.example.replace("_____", current.word);
-
-      answerExample.textContent = filledExample;
-      answerExample.classList.remove("hidden");
-      }
+  // ★ 正解・不正解どちらでも例文を表示
+  if (current.example && answerExample) {
+    answerExample.textContent =
+      current.example.replace(/_+/g, current.word);
+    answerExample.classList.remove("hidden");
   }
 
   checkBtn.disabled = true;
@@ -867,24 +862,20 @@ toggleBtn.onclick = () => {
     lastJudge = "wrong";
     judge.textContent = "✕";
     judge.className = "wrong";
-
-    correctWord.textContent = "答え: " + current.word;
-    correctWord.classList.remove("hidden");
-
-    if (current.example) {
-      answerExample.textContent =
-        current.example.replace("_____", current.word);
-      answerExample.classList.remove("hidden");
-    }
-
   } else {
     lastJudge = "correct";
     judge.textContent = "◎";
     judge.className = "correct";
+  }
 
-    correctWord.classList.add("hidden");
-    answerExample.classList.add("hidden");
-    answerExample.textContent = "";
+  // ★ 状態が変わっても例文は常に表示
+  correctWord.textContent = "答え: " + current.word;
+  correctWord.classList.remove("hidden");
+
+  if (current.example && answerExample) {
+    answerExample.textContent =
+      current.example.replace(/_+/g, current.word);
+    answerExample.classList.remove("hidden");
   }
 };
 
@@ -1122,6 +1113,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
