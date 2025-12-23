@@ -877,27 +877,16 @@ checkBtn.onclick = () => {
 };
 
 toggleBtn.onclick = () => {
-  if (!current) return;
+  if (!current || !lastJudge) return;
 
-  if (lastJudge === "correct") {
-    lastJudge = "wrong";
-    judge.textContent = "✕";
-    judge.className = "wrong";
-  } else {
-    lastJudge = "correct";
-    judge.textContent = "◎";
-    judge.className = "correct";
-  }
+  const nowCorrect = lastJudge === "wrong";
+  lastJudge = nowCorrect ? "correct" : "wrong";
 
-  // ★ 状態が変わっても例文は常に表示
-  correctWord.textContent = "答え: " + current.word;
-  correctWord.classList.remove("hidden");
+  judge.textContent = nowCorrect ? "◎" : "✕";
+  judge.className = nowCorrect ? "correct" : "wrong";
 
-  if (current.example && answerExample) {
-    answerExample.textContent =
-      current.example.replace(/_+/g, current.word);
-    answerExample.classList.remove("hidden");
-  }
+  resultArea.classList.remove("correct", "wrong");
+  resultArea.classList.add("show", nowCorrect ? "correct" : "wrong");
 };
 
 
@@ -1133,6 +1122,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
