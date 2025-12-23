@@ -218,26 +218,28 @@ body {
   margin-top: 4px;
 }
 
+/* 未回答（デフォルト） */
 #resultArea {
   min-height: 90px;
   text-align: center;
-
-  /* 未回答時 */
   background: transparent;
   border-radius: 10px;
 }
 
+/* 回答後 共通 */
 #resultArea.show {
-  background: #f6f7f8;
   padding: 10px 8px;
+  background: #f6f7f8;   /* ベース色（ほぼ白） */
 }
 
+/* 正解 */
 #resultArea.show.correct {
-  background: #f0f8f3;
+  background: #eef8f1;   /* うすい緑 */
 }
 
+/* 不正解 */
 #resultArea.show.wrong {
-  background: #fdf1f1;
+  background: #fdf1f1;   /* うすい赤 */
 }
 
 
@@ -1136,6 +1138,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
