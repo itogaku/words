@@ -169,7 +169,7 @@ body {
   min-height: 2em;          /* ← 重要：常に場所を確保 */
   padding: 6px 10px;
   border-radius: 6px;
-  color: #555;
+  color: #777;
   font-weight: 500;
   font-size: 16px;
   text-align: center;
@@ -211,16 +211,19 @@ body {
 
 #answerExample {
   font-size: 14px;
-  color: #555;
-  margin-top: 4px;
+  color: #444;
 }
 
 /* 未回答（デフォルト） */
 #resultArea {
-  min-height: 90px;
+  min-height: 90px;        /* ← ここで高さを確保 */
+  margin: 8px 0;
   text-align: center;
-  background: transparent;
-  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
 }
 
 /* 回答後 共通 */
@@ -271,9 +274,10 @@ body {
     <!-- 判定・答え -->
     <div id="resultArea">
       <div id="judge"></div>
-      <div id="correctWord" class="hidden"></div>
-      <div id="answerExample" class="hidden"></div>
+      <div id="correctWord"></div>
+      <div id="answerExample"></div>
     </div>
+
 
     <!-- 入力 -->
     <input id="answerInput" type="text" readonly>
@@ -1121,6 +1125,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
