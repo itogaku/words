@@ -846,23 +846,30 @@ toggleBtn.onclick = () => {
   if (!current) return;
 
   if (lastJudge === "correct") {
-    // ◎ → ✕
     lastJudge = "wrong";
     judge.textContent = "✕";
     judge.className = "wrong";
 
     correctWord.textContent = "答え: " + current.word;
-    correctWord.classList.add("show");   // ← 強調ON
+    correctWord.classList.remove("hidden");
+
+    if (current.example) {
+      answerExample.textContent =
+        current.example.replace("_____", current.word);
+      answerExample.classList.remove("hidden");
+    }
 
   } else {
-    // ✕ → ◎
     lastJudge = "correct";
     judge.textContent = "◎";
     judge.className = "correct";
 
-    correctWord.classList.remove("show"); // ← 強調OFF
+    correctWord.classList.add("hidden");
+    answerExample.classList.add("hidden");
+    answerExample.textContent = "";
   }
 };
+
 
 nextBtn.onclick = () => {
   if (!current || !lastJudge) return;
@@ -1097,6 +1104,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
