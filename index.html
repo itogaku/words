@@ -948,7 +948,7 @@ function renderQuestion() {
 }
 
 checkBtn.onclick = () => {
-  const ok = input.value.toLowerCase() === current.word.toLowerCase();
+  const ok = input.value === current.word;
   lastJudge = ok ? "correct" : "wrong";
 
   judge.textContent = ok ? "◎" : "✕";
@@ -1213,6 +1213,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
