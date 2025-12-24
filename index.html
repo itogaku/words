@@ -1119,13 +1119,17 @@ function renderList() {
 
 
 
+let currentPage = "quiz";
+
 function showPage(id) {
+  console.log("showPage:", id);
+
   document.querySelectorAll(".page").forEach(p =>
     p.classList.add("hidden")
   );
 
   document.getElementById(id).classList.remove("hidden");
-  currentPage = id; // ★ ここが重要
+  currentPage = id;
 
   if (id === "list") {
     renderList();
@@ -1133,13 +1137,14 @@ function showPage(id) {
 }
 
 
+
 function goToQuiz() {
+  console.log("goToQuiz called. currentPage =", currentPage);
+
   if (currentPage === "list") {
-    // 一覧 → 不正解のみ
     wrongOnlyMode = true;
     unattemptedOnlyMode = false;
   } else {
-    // 問題画面 → 通常出題
     wrongOnlyMode = false;
     unattemptedOnlyMode = false;
   }
@@ -1227,6 +1232,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
