@@ -196,11 +196,12 @@ body {
 }
 
 #actionButtons {
-  min-height: 40px;   /* ← 表示/非表示でズレない */
+  min-height: 44px;
   display: flex;
   gap: 8px;
   justify-content: center;
 }
+
 
 
 #exampleArea {
@@ -234,16 +235,13 @@ body {
 
 /* 未回答（デフォルト） */
 #resultArea {
-  min-height: 90px;
-  margin: 10px 0;
-  padding: 10px 8px;        /* ← 常に付ける */
+  min-height: 96px;          /* 見た目の安定用 */
   display: flex;
-  text-align: center;
-  border-radius: 10px;
   flex-direction: column;
   justify-content: center;
-  background: transparent;
+  text-align: center;
 }
+
 
 
 /* 回答後 共通 */
@@ -269,6 +267,13 @@ body {
   gap: 8px;
 }
 
+#answerControlArea {
+  flex-shrink: 0;            /* 押しつぶされない */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
 
 
   
@@ -301,22 +306,27 @@ body {
       <div id="exampleJa"></div>
     </div>
 
-    <div id="resultArea">
-      <div id="judge"></div>
-      <div id="correctWord"></div>
-      <div id="answerExample"></div>
-    </div>
 
+  </div>
+
+  <div id="resultArea">
+    <div id="judge"></div>
+    <div id="correctWord"></div>
+    <div id="answerExample"></div>
+  </div>
+
+  <!-- 回答操作（← resultArea の外） -->
+  <div id="answerControlArea">
     <input id="answerInput" type="text" readonly>
 
     <div id="actionButtons">
       <button id="checkBtn">回答</button>
-      <button id="nextBtn" class="hidden">次へ</button>
-      <button id="toggleBtn" class="hidden">正誤切替</button>
+      <button id="nextBtn">次へ</button>
+      <button id="toggleBtn">正誤切替</button>
     </div>
-
   </div>
 
+  
   <!-- 下：キーボード -->
   <div id="quizKeyboard">
     <div id="keyboard"></div>
@@ -1150,4 +1160,5 @@ buildKeyboard();
 
 </body>
 </html>
+
 
