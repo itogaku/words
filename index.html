@@ -408,7 +408,6 @@ button,
 
 
 
-
 <script>
 // ===== 単語データ（words.js） =====
 const words = [
@@ -846,7 +845,6 @@ let lastJudge = null;
 let wrongOnlyMode = false;
 let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
 let unattemptedOnlyMode = false;
-let currentPage = "quiz"; // "quiz" | "list"
 
   
 const keyboardLayouts = {
@@ -1119,41 +1117,24 @@ function renderList() {
 
 
 
-let currentPage = "quiz";
-
 function showPage(id) {
-  console.log("showPage:", id);
-
-  document.querySelectorAll(".page").forEach(p =>
-    p.classList.add("hidden")
-  );
-
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
-  currentPage = id;
 
   if (id === "list") {
     renderList();
   }
 }
 
-
-
 function goToQuiz() {
-  console.log("goToQuiz called. currentPage =", currentPage);
-
-  if (currentPage === "list") {
-    wrongOnlyMode = true;
-    unattemptedOnlyMode = false;
-  } else {
-    wrongOnlyMode = false;
-    unattemptedOnlyMode = false;
-  }
+  // ← ここで必ず通常モードに戻す
+  wrongOnlyMode = false;
+  unattemptedOnlyMode = false;
 
   updateProgressMini();
   showPage("quiz");
   renderQuestion();
 }
-
 
 
 
@@ -1232,20 +1213,6 @@ buildKeyboard();
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
