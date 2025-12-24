@@ -1128,14 +1128,24 @@ function showPage(id) {
 }
 
 function goToQuiz() {
-  // ← ここで必ず通常モードに戻す
-  wrongOnlyMode = false;
-  unattemptedOnlyMode = false;
+  const isFromList =
+    !document.getElementById("list").classList.contains("hidden");
+
+  if (isFromList) {
+    // 一覧 → 不正解のみ
+    wrongOnlyMode = true;
+    unattemptedOnlyMode = false;
+  } else {
+    // 問題画面 or その他 → 通常出題
+    wrongOnlyMode = false;
+    unattemptedOnlyMode = false;
+  }
 
   updateProgressMini();
   showPage("quiz");
   renderQuestion();
 }
+
 
 
 
@@ -1214,6 +1224,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
