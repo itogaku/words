@@ -846,6 +846,7 @@ let lastJudge = null;
 let wrongOnlyMode = false;
 let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
 let unattemptedOnlyMode = false;
+let currentPage = "quiz"; // "quiz" | "list"
 
   
 const keyboardLayouts = {
@@ -1119,24 +1120,26 @@ function renderList() {
 
 
 function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.querySelectorAll(".page").forEach(p =>
+    p.classList.add("hidden")
+  );
+
   document.getElementById(id).classList.remove("hidden");
+  currentPage = id; // ★ ここが重要
 
   if (id === "list") {
     renderList();
   }
 }
 
-function goToQuiz() {
-  const isFromList =
-    !document.getElementById("list").classList.contains("hidden");
 
-  if (isFromList) {
+function goToQuiz() {
+  if (currentPage === "list") {
     // 一覧 → 不正解のみ
     wrongOnlyMode = true;
     unattemptedOnlyMode = false;
   } else {
-    // 問題画面 or その他 → 通常出題
+    // 問題画面 → 通常出題
     wrongOnlyMode = false;
     unattemptedOnlyMode = false;
   }
@@ -1224,6 +1227,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
