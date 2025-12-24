@@ -1006,7 +1006,7 @@ function loadData() {
 }
   
 function enableNormalMode() {
-  wrongOnlyMode = false;
+  wrongOnlyMode = true;
   unattemptedOnlyMode = false;
 
   updateProgressMini();
@@ -1128,11 +1128,6 @@ function showPage(id) {
 }
 
 function goToQuiz() {
-  if (wrongOnlyMode) {
-    wrongOnlyMode = false;
-    unattemptedOnlyMode = true;
-  }
-
   updateProgressMini();   // ← これ
   showPage("quiz");
   renderQuestion();
@@ -1214,6 +1209,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
