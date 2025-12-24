@@ -1128,10 +1128,15 @@ function showPage(id) {
 }
 
 function goToQuiz() {
-  updateProgressMini();   // ← これ
+  // ← ここで必ず通常モードに戻す
+  wrongOnlyMode = false;
+  unattemptedOnlyMode = false;
+
+  updateProgressMini();
   showPage("quiz");
   renderQuestion();
 }
+
 
 
   
@@ -1209,6 +1214,7 @@ buildKeyboard();
 
 </body>
 </html>
+
 
 
 
