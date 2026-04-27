@@ -561,16 +561,7 @@ toggleBtn.onclick = () => {
 };
 
 
-nextBtn.onclick = () => {
-  if (!current || !lastJudge) return;
 
-  const key = current.word.toLowerCase();   // ★ 必須
-  progress[key] = lastJudge;
-
-  localStorage.setItem("progress", JSON.stringify(progress));
-  updateProgressMini();
-  renderQuestion();
-};
 
 
 
@@ -717,7 +708,6 @@ function goToQuiz() {
   
 document.getElementById("filter").onchange = renderList;
 
-loadData();
 
 /* ===== キーボード ===== */
 const keyboard = document.getElementById("keyboard");
