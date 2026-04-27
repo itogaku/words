@@ -347,6 +347,11 @@ button,
   
 <main>
 
+<div id="loginArea" class="hidden">
+  <input id="passwordInput" type="password">
+  <button onclick="login()">ログイン</button>
+</div>
+      
 <div>
   <h3>生徒追加</h3>
   <input id="newName" placeholder="名前">
@@ -409,7 +414,13 @@ button,
 
 </section>
 
+<section id="userPage" class="page">
+  ログインUI
+</section>
 
+<section id="quiz" class="page hidden">
+  クイズ
+</section>
 
 <section id="list" class="page hidden">
   <select id="filter">
@@ -443,7 +454,8 @@ const db = getFirestore();
 let users = {};
 let currentUser = null;
 let selectedUser = null;
-
+let selectedUser = null;
+      
 /* ===== 学習データ ===== */
 let progress = {};
 let current = null;
@@ -458,6 +470,9 @@ function init() {
 
   if (currentUser) {
     loadData();
+    showPage("quiz");      // ← ログイン済みなら直接クイズ
+  } else {
+    showPage("userPage");  // ← 未ログインならログイン画面
   }
 }
 
@@ -489,6 +504,11 @@ function renderUserList() {
 }
 
 /* ===== ログイン ===== */
+function selectUser(name) {
+  selectedUser = name;
+  document.getElementById("loginArea").classList.remove("hidden");
+}
+      
 window.selectUser = function(name) {
   selectedUser = name;
   document.getElementById("loginArea").classList.remove("hidden");
@@ -510,6 +530,23 @@ window.login = function() {
   }
 };
 
+function login() {
+  const pass = document.getElementById("passwordInput").value;
+
+  if (users[selectedUser] === pass) {
+    currentUser = selectedUser;
+    localStorage.setItem("currentUser", currentUser);
+
+    loadData();
+
+    // ★ ここが重要
+    showPage("quiz");
+
+  } else {
+    alert("パスワードが違う");
+  }
+}
+      
 /* ===== データ保存 ===== */
 function saveProgress() {
   if (!currentUser) return;
