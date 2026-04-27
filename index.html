@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
   
 <style>
 /* ===== 基本 ===== */
@@ -348,6 +347,24 @@ button,
   
 <main>
 
+<div>
+  <h3>生徒追加</h3>
+  <input id="newName" placeholder="名前">
+  <input id="newPass" type="password" placeholder="パスワード">
+  <button onclick="addUser(
+    document.getElementById('newName').value,
+    document.getElementById('newPass').value
+  )">追加</button>
+
+  <h3>ログイン</h3>
+  <div id="userList"></div>
+</div>
+
+<div id="loginArea" class="hidden">
+  <input id="passwordInput" type="password">
+  <button onclick="login()">ログイン</button>
+</div>
+      
 <section id="quiz" class="page">
 
   <!-- 上：キーボード以外 -->
@@ -408,7 +425,161 @@ button,
 
 
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* ===== Firebase ===== */
+const firebaseConfig = {
+  apiKey: "ここ",
+  authDomain: "ここ",
+  projectId: "ここ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore();
+
+/* ===== ユーザー管理 ===== */
+let users = {};
+let currentUser = null;
+let selectedUser = null;
+
+/* ===== 学習データ ===== */
+let progress = {};
+let current = null;
+let lastJudge = null;
+
+/* ===== 初期化 ===== */
+function init() {
+  users = JSON.parse(localStorage.getItem("users") || "{}");
+  currentUser = localStorage.getItem("currentUser");
+
+  renderUserList();
+
+  if (currentUser) {
+    loadData();
+  }
+}
+
+/* ===== 生徒追加 ===== */
+window.addUser = function(name, pass) {
+  if (!name || !pass) return alert("入力してください");
+
+  if (users[name]) return alert("既に存在");
+
+  users[name] = pass;
+  localStorage.setItem("users", JSON.stringify(users));
+
+  renderUserList();
+};
+
+/* ===== 生徒一覧 ===== */
+function renderUserList() {
+  const list = document.getElementById("userList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  Object.keys(users).forEach(name => {
+    const btn = document.createElement("button");
+    btn.textContent = name;
+    btn.onclick = () => selectUser(name);
+    list.appendChild(btn);
+  });
+}
+
+/* ===== ログイン ===== */
+window.selectUser = function(name) {
+  selectedUser = name;
+  document.getElementById("loginArea").classList.remove("hidden");
+};
+
+window.login = function() {
+  const pass = document.getElementById("passwordInput").value;
+
+  if (users[selectedUser] === pass) {
+    currentUser = selectedUser;
+    localStorage.setItem("currentUser", currentUser);
+
+    loadData();
+    alert("ログイン成功");
+
+    document.getElementById("loginArea").classList.add("hidden");
+  } else {
+    alert("パスワード違う");
+  }
+};
+
+/* ===== データ保存 ===== */
+function saveProgress() {
+  if (!currentUser) return;
+
+  localStorage.setItem(
+    "progress_" + currentUser,
+    JSON.stringify(progress)
+  );
+}
+
+function loadData() {
+  if (!currentUser) return;
+
+  progress = JSON.parse(
+    localStorage.getItem("progress_" + currentUser) || "{}"
+  );
+
+  renderQuestion();
+}
+
+/* ===== Firebase送信 ===== */
+async function sendLog(word, correct) {
+  if (!currentUser) return;
+
+  try {
+    await addDoc(collection(db, "logs"), {
+      user: currentUser,
+      word,
+      correct,
+      time: Date.now()
+    });
+  } catch (e) {
+    console.log("オフライン");
+  }
+}
+
+/* ===== 問題 ===== */
+function getNextWord() {
+  return words[Math.floor(Math.random() * words.length)];
+}
+
+function renderQuestion() {
+  current = getNextWord();
+  document.getElementById("meaning").textContent = current.meaning;
+}
+
+/* ===== 回答 ===== */
+window.checkAnswer = function() {
+  const input = document.getElementById("answerInput").value;
+
+  const ok = input === current.word;
+  lastJudge = ok ? "correct" : "wrong";
+
+  document.getElementById("judge").textContent = ok ? "◎" : "✕";
+};
+
+window.nextQuestion = function() {
+  if (!current || !lastJudge) return;
+
+  const key = current.word.toLowerCase();
+  progress[key] = lastJudge;
+
+  saveProgress();
+  sendLog(key, lastJudge === "correct");
+
+  renderQuestion();
+};
+
+/* ===== 起動 ===== */
+init();      
 // ===== 単語データ（words.js） =====
 const words = [
   { word: "act", meaning: "行動する", example: "We must _____ now.", exampleJa: "私たちは今すぐ行動しなければならない。" },
