@@ -264,11 +264,13 @@ window.resetProgress = function () {
 function init() {
   renderUsers();
 
+  // ★これを必ず入れる（超重要）
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById("userPage").classList.remove("hidden");
+
   if (currentUser) {
     loadProgress();
     showPage("quiz");
-  } else {
-    showPage("userPage");
   }
 }
 
