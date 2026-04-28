@@ -27,7 +27,8 @@ body { margin:0; font-family:Arial; padding:8px; }
   z-index:10;
 }
 
-#keyboard button { margin:2px; padding:6px; }
+button { padding:6px; margin:2px; }
+
 .correct { color:green; }
 .wrong { color:red; }
 </style>
@@ -35,10 +36,12 @@ body { margin:0; font-family:Arial; padding:8px; }
 
 <body>
 
-<!-- 上メニュー -->
+<!-- 上ボタン -->
 <div id="quizControls">
   <button onclick="showPage('quiz')">問題</button>
   <button onclick="showPage('list')">一覧</button>
+  <button onclick="enableWrongOnly()">不正解のみ</button>
+  <button onclick="resetProgress()">リセット</button>
 </div>
 
 <main>
@@ -69,8 +72,6 @@ body { margin:0; font-family:Arial; padding:8px; }
 
   <button id="checkBtn">回答</button>
   <button id="nextBtn">次へ</button>
-
-  <div id="keyboard"></div>
 </section>
 
 <!-- 一覧 -->
@@ -94,7 +95,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ===== データ ===== */
+/* ===== 単語 ===== */
+const words = [
+  { word:"apple", meaning:"りんご" },
+  { word:"book", meaning:"本" },
+  { word:"cat", meaning:"猫" }
+];
+
+/* ===== 状態 ===== */
 let users = JSON.parse(localStorage.getItem("users") || "{}");
 let currentUser = localStorage.getItem("currentUser");
 let selectedUser = null;
@@ -103,11 +111,7 @@ let progress = {};
 let current = null;
 let lastJudge = null;
 
-/* 単語 */
-const words = [
-  {word:"apple", meaning:"りんご"},
-  {word:"book", meaning:"本"}
-];
+let wrongOnly = false;
 
 /* ===== UI ===== */
 const meaning = document.getElementById("meaning");
@@ -115,10 +119,14 @@ const input = document.getElementById("answerInput");
 const judge = document.getElementById("judge");
 const correctWord = document.getElementById("correctWord");
 
-/* ===== ユーザー ===== */
-window.addUser = function() {
+/* =========================
+   ユーザー
+========================= */
+window.addUser = function () {
   const name = document.getElementById("newName").value;
   const pass = document.getElementById("newPass").value;
+
+  if (!name || !pass) return;
 
   users[name] = pass;
   localStorage.setItem("users", JSON.stringify(users));
@@ -129,19 +137,21 @@ function renderUsers() {
   const list = document.getElementById("userList");
   list.innerHTML = "";
 
-  Object.keys(users).forEach(u => {
+  Object.keys(users).forEach(name => {
     const btn = document.createElement("button");
-    btn.textContent = u;
+    btn.textContent = name;
     btn.onclick = () => {
-      selectedUser = u;
+      selectedUser = name;
       document.getElementById("loginArea").classList.remove("hidden");
     };
     list.appendChild(btn);
   });
 }
 
-/* ===== ログイン ===== */
-window.login = function() {
+/* =========================
+   ログイン
+========================= */
+window.login = function () {
   const pass = document.getElementById("passwordInput").value;
 
   if (users[selectedUser] === pass) {
@@ -155,24 +165,45 @@ window.login = function() {
   }
 };
 
-/* ===== 進捗 ===== */
+/* =========================
+   進捗
+========================= */
 function loadProgress() {
-  progress = JSON.parse(localStorage.getItem("progress_" + currentUser) || "{}");
+  progress = JSON.parse(
+    localStorage.getItem("progress_" + currentUser) || "{}"
+  );
+
   renderQuestion();
 }
 
 function saveProgress() {
-  localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
+  localStorage.setItem(
+    "progress_" + currentUser,
+    JSON.stringify(progress)
+  );
 }
 
-/* ===== クイズ ===== */
+/* =========================
+   問題
+========================= */
 function getNext() {
-  return words[Math.floor(Math.random() * words.length)];
+  const list = words.filter(w => {
+    const s = progress[w.word];
+
+    if (wrongOnly) return s === "wrong";
+    return s !== "correct";
+  });
+
+  return list[Math.floor(Math.random() * list.length)];
 }
 
 function renderQuestion() {
   current = getNext();
-  if (!current) return;
+
+  if (!current) {
+    meaning.textContent = "完了";
+    return;
+  }
 
   meaning.textContent = current.meaning;
   input.value = "";
@@ -180,8 +211,12 @@ function renderQuestion() {
   correctWord.textContent = "";
 }
 
+/* =========================
+   回答
+========================= */
 document.getElementById("checkBtn").onclick = () => {
   const ok = input.value === current.word;
+
   lastJudge = ok;
 
   judge.textContent = ok ? "◎" : "✕";
@@ -197,39 +232,35 @@ document.getElementById("nextBtn").onclick = async () => {
   await addDoc(collection(db, "logs"), {
     user: currentUser,
     word: current.word,
-    correct: lastJudge
+    correct: lastJudge,
+    time: Date.now()
   });
 
   renderQuestion();
 };
 
-/* ===== ページ ===== */
-window.showPage = function(id) {
+/* =========================
+   ページ
+========================= */
+window.showPage = function (id) {
   document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
-
-  if (id === "list") renderList();
 };
 
-/* ===== 一覧 ===== */
-function renderList() {
-  const table = document.getElementById("wordTable");
-  table.innerHTML = "";
+window.enableWrongOnly = function () {
+  wrongOnly = true;
+  renderQuestion();
+};
 
-  words.forEach(w => {
-    const tr = document.createElement("tr");
+window.resetProgress = function () {
+  progress = {};
+  localStorage.removeItem("progress_" + currentUser);
+  renderQuestion();
+};
 
-    tr.innerHTML = `
-      <td>${w.word}</td>
-      <td>${w.meaning}</td>
-      <td>${progress[w.word] || ""}</td>
-    `;
-
-    table.appendChild(tr);
-  });
-}
-
-/* ===== 初期化 ===== */
+/* =========================
+   初期化
+========================= */
 function init() {
   renderUsers();
 
