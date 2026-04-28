@@ -2,358 +2,53 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== 基本 ===== */
-* {
-  box-sizing: border-box;
-}
+body { margin:0; font-family:Arial; padding:8px; }
+.hidden { display:none; }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  padding: 8px;
-}
-
-/* ===== ページ切替 ===== */
 .page {
-  position: absolute;
-  top: 36px;
-  left: 0;
-  width: 100%;
-  height: calc(100dvh - 36px);
-  background: white;
-  z-index: 1;
+  position:absolute;
+  top:40px;
+  left:0;
+  width:100%;
+  height:calc(100dvh - 40px);
+  background:#fff;
 }
 
-.hidden {
-  display: none;
-}
-
-/* ===== 問題画面 ===== */
-#quiz {
-  display: flex;
-  flex-direction: column;
-  height: calc(100dvh - 36px);
-}
-
-/* 上：伸びてOK */
-#quizContent {
-  flex: 1;
-  overflow-y: auto;
-  text-align: center;
-}
-
-#quizKeyboard {
-  flex-shrink: 0;
-  padding-bottom: 4px;
-  background: white;
-}
-
-/* 上部（問題・入力） */
-#quizTop {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-}
-
-/* 問題文 */
-#meaning {
-  font-size: 24px;
-  margin: 12px 0 8px;
-}
-
-
-/* 正誤 */
-#judge {
-  font-size: 28px;
-  font-weight: bold;
-  line-height: 1;
-}
-
-.correct { color: #2e7d32; }
-.wrong   { color: #c62828; }
-
-/* 正解表示 */
-
-
-/* 入力欄 */
-#answerInput {
-  display: block;
-  margin: 8px auto;
-  width: 85%;
-  max-width: 340px;
-  text-align: center;
-}
-
-
-
-
-/* ボタン共通 */
-#quiz button {
-  font-size: 16px;
-  padding: 6px 10px;
-}
-
-/* ===== キーボード ===== */
-#keyboard {
-  margin-top: auto; /* ← これが重要：下に固定される */
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.key-row {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-}
-
-.key-row button {
-  min-width: 32px;
-  height: 32px;
-  font-size: 14px;
-}
-
-#keyboard button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-#keyboard button.active {
-  background: #ddd;
-}
-
-
-/* ===== 上部操作 ===== */
 #quizControls {
-  position: static;
-  margin-bottom: 6px;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#eee;
+  padding:4px;
+  z-index:10;
 }
 
-#quizControls button {
-  font-size: 12px;
-  padding: 4px 6px;
-}
-
-/* ===== 一覧画面 ===== */
-#list {
-  padding: 8px;
-  overflow-y: auto;
-}
-
-/* ===== 一覧テーブル ===== */
-#wordTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-#wordTable th,
-#wordTable td {
-  border: 1px solid #ccc;
-  padding: 4px 6px;
-  text-align: left;
-}
-
-#wordTable th {
-  background: #f0f0f0;
-  position: sticky;
-  top: 0;
-}
-
-#progressMini {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-#wordTable td:last-child:hover {
-  background: #eef;
-}
-
-/* 正解カード */
-#correctWord {
-  min-height: 2em;          /* ← 重要：常に場所を確保 */
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: #555;
-  font-weight: 500;
-  font-size: 16px;
-  text-align: center;
-  transition: all 0.2s;
-}
-
-/* 不正解時だけ強調 */
-#correctWord.show {
-  background: #fff3e0;
-  color: #d84315;
-  font-weight: bold;
-}
-
-#actionButtons {
-  min-height: 44px;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-
-
-#exampleArea {
-  font-size: 14px;
-  color: #444;
-  margin: 6px 0 10px;
-  padding: 6px 8px;
-  background: #fafafa;
-  border-radius: 6px;
-}
-
-
-#exampleEn {
-  font-style: italic;
-}
-
-#exampleJa {
-  font-size: 13px;
-  color: #666;
-}
-
-#wordTable td div {
-  line-height: 1.3;
-}
-
-#answerExample {
-  font-size: 14px;
-  color: #555;
-  margin-top: 4px;
-}
-
-/* 未回答（デフォルト） */
-#resultArea {
-  min-height: 96px;          /* 見た目の安定用 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-
-
-/* 回答後 共通 */
-#resultArea.show {
-  background: #f6f7f8;   /* ベース色（ほぼ白） */
-}
-
-/* 正解 */
-#resultArea.show.correct {
-  background: #eef8f1;   /* うすい緑 */
-}
-
-/* 不正解 */
-#resultArea.show.wrong {
-  background: #fdf1f1;   /* うすい赤 */
-}
-
-#resultBlock {
-  min-height: 150px;     /* ← これが効く */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-}
-
-#answerControlArea {
-  flex-shrink: 0;            /* 押しつぶされない */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-button,
-#resultArea,
-#actionButtons {
-  touch-action: manipulation;
-}
-
-/* ===== 見やすさ調整（追加） ===== */
-
-#meaning {
-  font-size: 1.5rem;
-  margin: 14px 0 10px;
-}
-
-#exampleArea {
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-#exampleEn {
-  font-size: 1rem;
-}
-
-#exampleJa {
-  font-size: 0.95rem;
-}
-
-#judge {
-  font-size: 2rem;
-}
-
-#correctWord {
-  font-size: 1.2rem;
-}
-
-#correctWord.show {
-  font-weight: 600;
-}
-
-#answerExample {
-  font-size: 1rem;
-  line-height: 1.4;
-}
-
-#answerInput {
-  font-size: 1.4rem;
-  padding: 8px 6px;
-}
-
-#quiz button {
-  font-size: 1rem;
-}
-
-
-  
+#keyboard button { margin:2px; padding:6px; }
+.correct { color:green; }
+.wrong { color:red; }
 </style>
-
 </head>
 
 <body>
-<!-- 上固定ボタン -->
+
+<!-- 上メニュー -->
 <div id="quizControls">
-  <button onclick="goToQuiz()">問題</button>
+  <button onclick="showPage('quiz')">問題</button>
   <button onclick="showPage('list')">一覧</button>
-  <button onclick="enableWrongOnlyMode()">不正解のみ</button>
-  <button onclick="resetProgress()">リセット</button>
 </div>
 
 <main>
 
-<!-- ★ ログイン画面 -->
+<!-- ログイン -->
 <section id="userPage" class="page">
   <h3>生徒追加</h3>
   <input id="newName" placeholder="名前">
   <input id="newPass" type="password" placeholder="パスワード">
-  <button onclick="addUser(
-    document.getElementById('newName').value,
-    document.getElementById('newPass').value
-  )">追加</button>
+  <button onclick="addUser()">追加</button>
 
   <h3>ログイン</h3>
   <div id="userList"></div>
@@ -364,419 +59,26 @@ button,
   </div>
 </section>
 
-<!-- ★ あなたのクイズ（そのまま） -->
+<!-- クイズ -->
 <section id="quiz" class="page hidden">
+  <div id="meaning"></div>
+  <input id="answerInput">
 
-  <div id="quizContent">
-    <div id="progressMini"></div>
-    <div id="meaning"></div>
+  <div id="judge"></div>
+  <div id="correctWord"></div>
 
-    <div id="exampleArea">
-      <div id="exampleEn"></div>
-      <div id="exampleJa"></div>
-    </div>
-  </div>
+  <button id="checkBtn">回答</button>
+  <button id="nextBtn">次へ</button>
 
-  <div id="resultArea">
-    <div id="judge"></div>
-    <div id="correctWord"></div>
-    <div id="answerExample"></div>
-  </div>
-
-  <div id="answerControlArea">
-    <input id="answerInput" type="text" readonly>
-    <div id="actionButtons">
-      <button id="checkBtn">回答</button>
-      <button id="nextBtn">次へ</button>
-      <button id="toggleBtn">正誤切替</button>
-    </div>
-  </div>
-
-  <div id="quizKeyboard">
-    <div id="keyboard"></div>
-    <select id="keyboardSelect">
-      <option value="mobile">アルファベット配列</option>
-      <option value="qwerty">QWERTY</option>
-    </select>
-  </div>
-
+  <div id="keyboard"></div>
 </section>
 
-<!-- ★ 一覧 -->
+<!-- 一覧 -->
 <section id="list" class="page hidden">
-  <select id="filter">
-    <option value="all">全て</option>
-    <option value="correct">正解</option>
-    <option value="wrong">不正解</option>
-    <option value="unanswered">未出題</option>
-  </select>
   <table id="wordTable"></table>
 </section>
 
 </main>
-<script>
-let progress = {};
-let current = null;
-let lastJudge = null;
-let wrongOnlyMode = false;
-let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
-let unattemptedOnlyMode = false;
-
-  
-const keyboardLayouts = {
-  mobile: [
-    ["a","b","c","d","e","f","g","h","i"],
-    ["j","k","l","m","n","o","p","q","r"],
-    ["shift","s","t","u","v","w","x","y","z","del"]
-  ],
-  qwerty: [
-    ["q","w","e","r","t","y","u","i","o","p"],
-    ["a","s","d","f","g","h","j","k","l"],
-    ["shift","z","x","c","v","b","n","m","del"]
-  ]
-};
-
-
-const meaning = document.getElementById("meaning");
-const judge = document.getElementById("judge");
-const correctWord = document.getElementById("correctWord");
-const input = document.getElementById("answerInput");
-const checkBtn = document.getElementById("checkBtn");
-const nextBtn = document.getElementById("nextBtn");
-const toggleBtn = document.getElementById("toggleBtn");
-const progressMini = document.getElementById("progressMini");
-const exampleEn = document.getElementById("exampleEn");
-const exampleJa = document.getElementById("exampleJa");
-const answerExample = document.getElementById("answerExample");
-
-
-function getNextWord() {
-  const list = words.filter(w => {
-    const s = progress[w.word.toLowerCase()];
-
-    if (wrongOnlyMode) {
-      return s === "wrong";
-    }
-
-    if (unattemptedOnlyMode) {
-      return s === undefined;
-    }
-
-    return s !== "correct";
-  });
-
-  return list.length
-    ? list[Math.floor(Math.random() * list.length)]
-    : null;
-}
-
-
-function updateProgressMini() {
-  if (!progressMini) return;
-
-  // 不正解数
-  const wrongCount =
-    Object.values(progress).filter(v => v === "wrong").length;
-
-  if (wrongOnlyMode) {
-    progressMini.textContent = `不正解：${wrongCount} 問`;
-  } else {
-    progressMini.textContent =
-      `進捗：${Object.keys(progress).length} / ${words.length}`;
-  }
-}
-
-
-
-function renderQuestion() {
-  current = getNextWord();
-  lastJudge = null;
-
-  if (!current) {
-    meaning.textContent = "学習完了！";
-    return;
-  }
-
-  meaning.textContent = current.meaning;
-  judge.textContent = "";
-  judge.className = "";
-  input.value = "";
-  correctWord.textContent = "";
-  correctWord.classList.remove("show");
-
-  if (current.example) {
-    exampleEn.textContent = current.example;
-    exampleJa.textContent = current.exampleJa || "";
-  } else {
-    exampleEn.textContent = "";
-    exampleJa.textContent = "";
-  }
-  checkBtn.disabled = false;
-  nextBtn.classList.add("hidden");
-  toggleBtn.classList.add("hidden");
-
-  answerExample.textContent = "";
-  answerExample.classList.add("hidden");
-
-  resultArea.classList.remove("show", "correct", "wrong");
-
-}
-
-checkBtn.onclick = () => {
-  const ok = input.value === current.word;
-  lastJudge = ok ? "correct" : "wrong";
-
-  judge.textContent = ok ? "◎" : "✕";
-  judge.className = ok ? "correct" : "wrong";
-
-  // ★ クラスを必ずリセットしてから付ける
-  resultArea.classList.remove("correct", "wrong");
-  resultArea.classList.add("show", ok ? "correct" : "wrong");
-
-  correctWord.textContent = "答え: " + current.word;
-  correctWord.classList.remove("hidden");
-
-  if (current.example && answerExample) {
-    answerExample.textContent =
-      current.example.replace(/_+/g, current.word);
-    answerExample.classList.remove("hidden");
-  }
-
-  checkBtn.disabled = true;
-  nextBtn.classList.remove("hidden");
-  toggleBtn.classList.remove("hidden");
-};
-
-toggleBtn.onclick = () => {
-  if (!current || !lastJudge) return;
-
-  const nowCorrect = lastJudge === "wrong";
-  lastJudge = nowCorrect ? "correct" : "wrong";
-
-  judge.textContent = nowCorrect ? "◎" : "✕";
-  judge.className = nowCorrect ? "correct" : "wrong";
-
-  resultArea.classList.remove("correct", "wrong");
-  resultArea.classList.add("show", nowCorrect ? "correct" : "wrong");
-};
-
-
-
-
-
-
-function loadData() {
-  progress = JSON.parse(localStorage.getItem("progress") || "{}");
-  updateProgressMini();   // ← 追加
-  renderQuestion();
-}
-  
-function enableWrongOnlyMode() {
-  wrongOnlyMode = true;
-  unattemptedOnlyMode = false;
-
-  updateProgressMini();
-  renderQuestion();
-}
-
-
-
-function resetProgress() {
-  if (!confirm("リセットしますか？")) return;
-  progress = {};
-  localStorage.removeItem("progress");
-  wrongOnlyMode = false;
-  renderQuestion();
-}
-
-function renderList() {
-  const table = document.getElementById("wordTable");
-  const filter = document.getElementById("filter")?.value || "all";
-
-  table.innerHTML = "";
-
-  /* ===== ヘッダー ===== */
-  const thead = document.createElement("thead");
-  const headRow = document.createElement("tr");
-
-  ["単語", "意味", "状態"].forEach(text => {
-    const th = document.createElement("th");
-    th.textContent = text;
-    headRow.appendChild(th);
-  });
-
-  thead.appendChild(headRow);
-  table.appendChild(thead);
-
-  /* ===== 本体 ===== */
-  const tbody = document.createElement("tbody");
-
-  words.forEach(w => {
-    const key = w.word.toLowerCase();
-    const state = progress[key]; // "correct" | "wrong" | undefined
-
-    /* --- フィルター判定 --- */
-    if (filter === "correct" && state !== "correct") return;
-    if (filter === "wrong" && state !== "wrong") return;
-    if (filter === "unanswered" && state !== undefined) return;
-
-    const tr = document.createElement("tr");
-
-    /* 単語 */
-    const tdWord = document.createElement("td");
-    tdWord.textContent = w.word;
-
-    /* 意味・例文 */
-    const tdMeaning = document.createElement("td");
-
-    const meaningDiv = document.createElement("div");
-    meaningDiv.textContent = w.meaning;
-    tdMeaning.appendChild(meaningDiv);
-
-    if (w.example) {
-      const exDiv = document.createElement("div");
-      exDiv.textContent = w.example.replace("_____", w.word);
-      exDiv.style.fontSize = "12px";
-      exDiv.style.color = "#555";
-      exDiv.style.marginTop = "2px";
-      tdMeaning.appendChild(exDiv);
-    }
-
-    if (w.exampleJa) {
-      const jaDiv = document.createElement("div");
-      jaDiv.textContent = w.exampleJa;
-      jaDiv.style.fontSize = "12px";
-      jaDiv.style.color = "#777";
-      tdMeaning.appendChild(jaDiv);
-    }
-
-    /* 状態 */
-    const tdStatus = document.createElement("td");
-    tdStatus.textContent =
-      state === "correct" ? "〇" :
-      state === "wrong"   ? "×" : "";
-
-    tdStatus.style.cursor = "pointer";
-
-    /* ワンタッチ循環 */
-    tdStatus.onclick = () => {
-      if (!progress[key]) {
-        progress[key] = "correct";
-      } else if (progress[key] === "correct") {
-        progress[key] = "wrong";
-      } else {
-        delete progress[key];
-      }
-
-      localStorage.setItem("progress", JSON.stringify(progress));
-      renderList();
-    };
-
-    tr.appendChild(tdWord);
-    tr.appendChild(tdMeaning);
-    tr.appendChild(tdStatus);
-
-    tbody.appendChild(tr);
-  });
-
-  table.appendChild(tbody);
-}
-
-
-
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-
-  if (id === "list") {
-    renderList();
-  }
-}
-
-function goToQuiz() {
-  // ← ここで必ず通常モードに戻す
-  wrongOnlyMode = false;
-  unattemptedOnlyMode = false;
-
-  updateProgressMini();
-  showPage("quiz");
-  renderQuestion();
-}
-
-
-
-  
-document.getElementById("filter").onchange = renderList;
-
-
-/* ===== キーボード ===== */
-const keyboard = document.getElementById("keyboard");
-let upper = false;
-
-function buildKeyboard() {
-  keyboard.innerHTML = "";
-
-  const layout = keyboardLayouts[currentLayout];
-
-  layout.forEach(row => {
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "key-row";
-
-    row.forEach(ch => {
-      const btn = document.createElement("button");
-
-      // 表示テキスト
-      if (ch === "shift") {
-        btn.textContent = "Shift";
-        btn.classList.toggle("active", upper);
-
-        btn.onclick = () => {
-          upper = !upper;      // ← 押すたびに ON / OFF
-          buildKeyboard();
-        };
-      } else if (ch === "del") {
-        btn.textContent = "⌫";
-
-        btn.onclick = () => {
-          input.value = input.value.slice(0, -1);
-        };
-
-      } else {
-        // 通常文字キー
-        btn.textContent = upper ? ch.toUpperCase() : ch;
-
-        btn.onclick = () => {
-          input.value += upper ? ch.toUpperCase() : ch;
-
-          // 1文字入力後に Shift を解除
-          if (upper) {
-            upper = false;
-            buildKeyboard();
-          }
-        };
-      }
-
-      rowDiv.appendChild(btn);
-    });
-
-    keyboard.appendChild(rowDiv);
-  });
-}
-
-
-const keyboardSelect = document.getElementById("keyboardSelect");
-keyboardSelect.value = currentLayout;
-
-keyboardSelect.onchange = () => {
-  currentLayout = keyboardSelect.value;
-  localStorage.setItem("keyboardLayout", currentLayout);
-  buildKeyboard();
-};
-
-buildKeyboard();
-
-</script>
-
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -784,44 +86,54 @@ import { getFirestore, addDoc, collection } from "https://www.gstatic.com/fireba
 
 /* ===== Firebase ===== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVc0-URnaEl4Oj9tjMqtD7VrtmDLwGuVc",
-  authDomain: "words-gk.firebaseapp.com",
-  projectId: "words-gk",
-  storageBucket: "words-gk.firebasestorage.app",
-  messagingSenderId: "668548972436",
-  appId: "1:668548972436:web:8ee9047b3022619b261981"
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ===== ユーザー管理 ===== */
+/* ===== データ ===== */
 let users = JSON.parse(localStorage.getItem("users") || "{}");
 let currentUser = localStorage.getItem("currentUser");
 let selectedUser = null;
 
-/* ===== 生徒追加 ===== */
-window.addUser = function(name, pass) {
-  if (!name || !pass) return alert("入力してください");
-  if (users[name]) return alert("既に存在");
+let progress = {};
+let current = null;
+let lastJudge = null;
+
+/* 単語 */
+const words = [
+  {word:"apple", meaning:"りんご"},
+  {word:"book", meaning:"本"}
+];
+
+/* ===== UI ===== */
+const meaning = document.getElementById("meaning");
+const input = document.getElementById("answerInput");
+const judge = document.getElementById("judge");
+const correctWord = document.getElementById("correctWord");
+
+/* ===== ユーザー ===== */
+window.addUser = function() {
+  const name = document.getElementById("newName").value;
+  const pass = document.getElementById("newPass").value;
 
   users[name] = pass;
   localStorage.setItem("users", JSON.stringify(users));
-  renderUserList();
+  renderUsers();
 };
 
-/* ===== 生徒一覧 ===== */
-function renderUserList() {
+function renderUsers() {
   const list = document.getElementById("userList");
-  if (!list) return;
-
   list.innerHTML = "";
 
-  Object.keys(users).forEach(name => {
+  Object.keys(users).forEach(u => {
     const btn = document.createElement("button");
-    btn.textContent = name;
+    btn.textContent = u;
     btn.onclick = () => {
-      selectedUser = name;
+      selectedUser = u;
       document.getElementById("loginArea").classList.remove("hidden");
     };
     list.appendChild(btn);
@@ -836,73 +148,93 @@ window.login = function() {
     currentUser = selectedUser;
     localStorage.setItem("currentUser", currentUser);
 
-    loadUserProgress();   // ★ここ重要
+    loadProgress();
     showPage("quiz");
-
   } else {
     alert("パスワード違う");
   }
 };
 
-/* ===== 進捗管理（ユーザー別） ===== */
-function loadUserProgress() {
-  progress = JSON.parse(
-    localStorage.getItem("progress_" + currentUser) || "{}"
-  );
-
-  updateProgressMini();
+/* ===== 進捗 ===== */
+function loadProgress() {
+  progress = JSON.parse(localStorage.getItem("progress_" + currentUser) || "{}");
   renderQuestion();
 }
 
-function saveUserProgress() {
-  if (!currentUser) return;
-
-  localStorage.setItem(
-    "progress_" + currentUser,
-    JSON.stringify(progress)
-  );
+function saveProgress() {
+  localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
 }
 
-/* ===== Firebase送信 ===== */
-async function sendLog(word, correct) {
-  if (!currentUser) return;
-
-  try {
-    await addDoc(collection(db, "logs"), {
-      user: currentUser,
-      word: word,
-      correct: correct,
-      time: Date.now()
-    });
-  } catch (e) {
-    console.log("オフライン（後で送信できるように拡張可）");
-  }
+/* ===== クイズ ===== */
+function getNext() {
+  return words[Math.floor(Math.random() * words.length)];
 }
 
-/* ===== 既存ボタン拡張 ===== */
-nextBtn.onclick = () => {
-  if (!current || !lastJudge) return;
+function renderQuestion() {
+  current = getNext();
+  if (!current) return;
 
-  const key = current.word.toLowerCase();
-  progress[key] = lastJudge;
+  meaning.textContent = current.meaning;
+  input.value = "";
+  judge.textContent = "";
+  correctWord.textContent = "";
+}
 
-  saveUserProgress();              // ★ローカル保存
-  sendLog(key, lastJudge === "correct");  // ★クラウド送信
+document.getElementById("checkBtn").onclick = () => {
+  const ok = input.value === current.word;
+  lastJudge = ok;
 
-  updateProgressMini();
+  judge.textContent = ok ? "◎" : "✕";
+  correctWord.textContent = current.word;
+};
+
+document.getElementById("nextBtn").onclick = async () => {
+  if (!current) return;
+
+  progress[current.word] = lastJudge ? "correct" : "wrong";
+  saveProgress();
+
+  await addDoc(collection(db, "logs"), {
+    user: currentUser,
+    word: current.word,
+    correct: lastJudge
+  });
+
   renderQuestion();
 };
 
+/* ===== ページ ===== */
+window.showPage = function(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+
+  if (id === "list") renderList();
+};
+
+/* ===== 一覧 ===== */
+function renderList() {
+  const table = document.getElementById("wordTable");
+  table.innerHTML = "";
+
+  words.forEach(w => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${w.word}</td>
+      <td>${w.meaning}</td>
+      <td>${progress[w.word] || ""}</td>
+    `;
+
+    table.appendChild(tr);
+  });
+}
+
 /* ===== 初期化 ===== */
 function init() {
-  // ★ これを一番上に追加
-  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-  document.getElementById("userPage").classList.remove("hidden");
-
-  renderUserList();
+  renderUsers();
 
   if (currentUser) {
-    loadUserProgress();
+    loadProgress();
     showPage("quiz");
   } else {
     showPage("userPage");
@@ -911,7 +243,6 @@ function init() {
 
 init();
 </script>
+
 </body>
 </html>
-
-
