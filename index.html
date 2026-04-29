@@ -64,6 +64,10 @@ button:active { background: #ddd; }
   background: #2196f3;
   color: white;
 }
+
+.page { display: none; }
+.page.active { display: block !important; }
+#quiz.active { display: flex !important; } /* クイズ画面がflexの場合 */
 </style>
 </head>
 <body>
@@ -581,16 +585,23 @@ let currentSection = 0;   // 0なら全範囲、1なら1〜20番...
 // セクション画面を表示するたびにボタンを更新
 function renderSectionButtons() {
   const container = document.getElementById("sectionContainer");
-  container.innerHTML = "";
+  if (!container) return; // 要素がない場合は中断
+  
+  container.innerHTML = ""; // 一旦中身を空にする
+  
   const sectionCount = Math.ceil(words.length / SECTION_SIZE);
 
   for (let i = 1; i <= sectionCount; i++) {
     const btn = document.createElement("button");
-    btn.style.height = "60px";
+    btn.className = "section-btn"; // スタイル用
+    btn.style.height = "70px";
     btn.style.fontSize = "16px";
-    btn.style.background = "white";
-    btn.innerHTML = `<strong>Section ${i}</strong><br><small>${(i-1)*SECTION_SIZE + 1}～${i*SECTION_SIZE}</small>`;
-    btn.onclick = () => changeSection(i);
+    btn.style.cursor = "pointer";
+    btn.innerHTML = `<strong>Section ${i}</strong><br><small>${(i-1)*SECTION_SIZE + 1}～${Math.min(i*SECTION_SIZE, words.length)}</small>`;
+    
+    btn.onclick = () => {
+      changeSection(i);
+    };
     container.appendChild(btn);
   }
 }
@@ -604,22 +615,7 @@ window.changeSection = function(val) {
 
 // 既存の showPage を少し修正（セクション画面ならボタン描画）
 const originalShowPage = window.showPage;
-window.showPage = function(id) {
-  if (id === "sectionPage") renderSectionButtons();
-  
-  // 元の表示処理
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  const target = document.getElementById(id);
-  if(target) target.classList.add("active");
 
-  const controls = document.getElementById("quizControls");
-  if (currentUser) {
-    controls.classList.add("is-logged-in");
-  } else {
-    controls.classList.remove("is-logged-in");
-  }
-  if(id === 'list') renderList();
-};
   
 let progress = {};
 let current = null;
@@ -632,19 +628,24 @@ let upper = false;
 
 /* 画面表示制御 */
 window.showPage = function(id) {
+  // すべてのページを隠す
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  
+  // 指定したページを表示
   const target = document.getElementById(id);
   if(target) target.classList.add("active");
-  
-  // ログイン中かどうかでメニューの表示を切り替え
+
+  // メニューバーの表示制御
   const controls = document.getElementById("quizControls");
   if (currentUser) {
-    controls.classList.add("is-logged-in");
+    controls.classList.add("is-logged-in"); // CSSで display: flex になる
   } else {
     controls.classList.remove("is-logged-in");
   }
 
-  if(id === 'list') renderList();
+  // セクション画面や一覧画面なら描画を更新
+  if (id === "sectionPage") renderSectionButtons();
+  if (id === "list") renderList();
 };
 
 /* ユーザー管理 */
@@ -719,12 +720,15 @@ function renderUserList() {
 window.login = function() {
   const pass = document.getElementById("passwordInput").value;
   let users = JSON.parse(localStorage.getItem("users") || "{}");
+  
   if(users[selectedUser] === pass) {
     currentUser = selectedUser;
     localStorage.setItem("currentUser", currentUser);
     document.getElementById("passwordInput").value = "";
-    loadUserData(); // データを読み込み
-    showPage("sectionPage"); // ログイン直後はセクション選択画面へ！
+    
+    loadUserData(); // 進捗読み込み
+    renderSectionButtons(); // ★ここでボタンを作成！
+    showPage("sectionPage"); // 画面移動
   } else {
     alert("パスワードが違います");
   }
