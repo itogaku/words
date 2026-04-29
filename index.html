@@ -338,7 +338,7 @@ button,
 <body>
 
 <!-- ===== ログイン画面 ===== -->
-<section id="userPage" class="page hidden">
+<section id="userPage" class="page">
 
 <h3>生徒追加</h3>
 <input id="newName" placeholder="名前">
@@ -367,7 +367,7 @@ button,
   
 <main>
 
-<section id="quiz" class="page">
+<section id="quiz" class="page hidden">
 
   <!-- 上：キーボード以外 -->
   <div id="quizContent">
@@ -897,11 +897,22 @@ window.login = function(){
 }
 
 /* ===== ログアウト ===== */
-window.logout=function(){
+window.logout = function() {
   localStorage.removeItem("currentUser");
-  currentUser=null;
+  currentUser = null;
+
+  // ★ 状態リセット
+  selectedUser = null;
+  progress = {};
+  
+  // ★ UIリセット
+  document.getElementById("passwordInput").value = "";
+  document.getElementById("loginArea").classList.add("hidden");
+
+  renderUsers();   // 生徒一覧再描画
+
   showPage("userPage");
-}
+};
 
 /* ===== データ ===== */
 function loadData(){
