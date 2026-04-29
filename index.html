@@ -238,15 +238,24 @@ window.login = function() {
   }
 };
 
+/* ===== ログアウト（確認ダイアログ付き） ===== */
 window.logout = function() {
+  // ここで確認ダイアログを表示
+  if (!confirm("ログアウトしてもよろしいですか？")) {
+    return; // 「キャンセル」が押されたら何もしない
+  }
+
   localStorage.removeItem("currentUser");
   currentUser = null;
   selectedUser = null;
   progress = {};
+  
+  // UIの初期化
+  document.getElementById("passwordInput").value = "";
   document.getElementById("loginArea").classList.add("hidden");
+  
   showPage("userPage");
 };
-
 /* クイズロジック */
 function loadUserData() {
   if(!currentUser) return;
