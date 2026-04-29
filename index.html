@@ -842,9 +842,11 @@ function init(){
 
   renderUserList();
 
-  if(currentUser){
-    loadData();
+  if (currentUser) {
+    loadUserProgress();
     showPage("quiz");
+  } else {
+    showPage("userPage");  // ← ここが効く
   }
 }
 
