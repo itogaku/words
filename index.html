@@ -2,14 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+  
 <style>
-body { font-family: Arial; margin:0; padding:10px; }
-.page { display:none; }
-.page.active { display:block; }
-button { margin:5px; }
-
 /* ===== 基本 ===== */
 * {
   box-sizing: border-box;
@@ -332,37 +330,24 @@ button,
   font-size: 1rem;
 }
 
+
+  
 </style>
 </head>
 
 <body>
 
-<!-- ===== ログイン画面 ===== -->
-<section id="userPage" class="page active">
-
-<h3>生徒追加</h3>
-<input id="newName" placeholder="名前">
-<input id="newPass" type="password" placeholder="パス">
-<button onclick="addUser()">追加</button>
-
-<h3>ログイン</h3>
-<div id="userList"></div>
-
-<div id="loginArea" style="display:none;">
-<input id="passwordInput" type="password">
-<button onclick="login()">ログイン</button>
-</div>
-
-</section>
-
-<!-- ===== クイズ ===== -->
 <div id="quizControls">
   <button onclick="goToQuiz()">問題</button>
   <button onclick="showPage('list')">一覧</button>
   <button onclick="enableWrongOnlyMode()">不正解のみ</button>
   <button onclick="resetProgress()">リセット</button>
 </div>
+
+
   
+<main>
+
 <section id="quiz" class="page">
 
   <!-- 上：キーボード以外 -->
@@ -405,9 +390,9 @@ button,
     </select>
   </div>
 
-<button onclick="logout()">ログアウト</button>
-
 </section>
+
+
 
 <section id="list" class="page hidden">
   <select id="filter">
@@ -419,122 +404,21 @@ button,
   <table id="wordTable"></table>
 </section>
 
+</main>
 
-<script type="module">
 
+
+<script>
+// ===== 単語データ（words.js） =====
 const words = [
   { word: "act", meaning: "行動する", example: "We must _____ now.", exampleJa: "私たちは今すぐ行動しなければならない。" },
-  { word: "add", meaning: "加える", example: "Please _____ sugar to the tea.", exampleJa: "お茶に砂糖を加えてください。" },
-  { word: "weather", meaning: "天気", example: "The ____ is nice today.", exampleJa: "今日は天気がいいです。" },
+{ word: "weather", meaning: "天気", example: "The ____ is nice today.", exampleJa: "今日は天気がいいです。" },
 
 ];
 
-  
-/* ===== Firebase（そのままでOK） ===== */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "words-gk.firebaseapp.com",
-  projectId: "words-gk"
-};
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore();
-
-/* ===== データ ===== */
-let users = {};
-let currentUser = null;
-let selectedUser = null;
-
-let progress = {};
-let current = null;
-
-/* ===== 単語 ===== */
-const words = [
-  { word:"apple", meaning:"りんご" },
-  { word:"dog", meaning:"犬" }
-];
-
-/* ===== 初期化 ===== */
-function init(){
-  users = JSON.parse(localStorage.getItem("users") || "{}");
-  currentUser = localStorage.getItem("currentUser");
-
-  renderUserList();
-
-  if(currentUser){
-    loadData();
-    showPage("quiz");
-  }
-}
-
-/* ===== ページ切替 ===== */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-/* ===== 生徒追加 ===== */
-window.addUser = function(){
-  const name = newName.value;
-  const pass = newPass.value;
-
-  if(!name || !pass) return alert("入力");
-
-  users[name]=pass;
-  localStorage.setItem("users", JSON.stringify(users));
-  renderUserList();
-}
-
-/* ===== 一覧 ===== */
-function renderUserList(){
-  userList.innerHTML="";
-
-  Object.keys(users).forEach(name=>{
-    const btn=document.createElement("button");
-    btn.textContent=name;
-    btn.onclick=()=>{
-      selectedUser=name;
-      loginArea.style.display="block";
-    };
-    userList.appendChild(btn);
-  });
-}
-
-/* ===== ログイン ===== */
-window.login = function(){
-  const pass=passwordInput.value;
-
-  if(users[selectedUser]===pass){
-    currentUser=selectedUser;
-    localStorage.setItem("currentUser",currentUser);
-
-    loadData();
-    showPage("quiz");
-  }else{
-    alert("違う");
-  }
-}
-
-/* ===== ログアウト ===== */
-window.logout=function(){
-  localStorage.removeItem("currentUser");
-  currentUser=null;
-  showPage("userPage");
-}
-
-/* ===== データ ===== */
-function loadData(){
-  progress = JSON.parse(localStorage.getItem("progress_"+currentUser) || "{}");
-  nextQuestion();
-}
-
-function saveData(){
-  localStorage.setItem("progress_"+currentUser, JSON.stringify(progress));
-}
-
+// ========= main.js 統合部分 =========
 let progress = {};
 let current = null;
 let lastJudge = null;
@@ -904,23 +788,6 @@ keyboardSelect.onchange = () => {
 };
 
 buildKeyboard();
-
-
-/* ===== Firebase送信 ===== */
-async function sendLog(word,correct){
-  try{
-    await addDoc(collection(db,"logs"),{
-      user:currentUser,
-      word,
-      correct,
-      time:Date.now()
-    });
-  }catch{
-    console.log("オフライン");
-  }
-}
-
-init();
 
 </script>
 
