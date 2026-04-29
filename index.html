@@ -796,18 +796,23 @@ function getNextWord() {
 }
 
 function renderQuestion() {
-  current = getNextWord();
+  // getNextWord() は currentSection (20語制限) を考慮するように以前修正したものです
+  current = getNextWord(); 
   lastJudge = null;
+
   const input = document.getElementById("answerInput");
   const resultArea = document.getElementById("resultArea");
 
+  // 単語がなくなった場合（そのセクションの未正解がゼロなど）
   if (!current) {
-    document.getElementById("meaning").textContent = "学習完了！";
+    document.getElementById("meaning").textContent = "このセクションは学習完了！";
     document.getElementById("exampleEn").textContent = "";
     document.getElementById("exampleJa").textContent = "";
+    document.getElementById("checkBtn").disabled = true;
     return;
   }
 
+  // 以下、表示のリセット処理...
   document.getElementById("meaning").textContent = current.meaning;
   document.getElementById("judge").textContent = "";
   document.getElementById("correctWord").textContent = "";
@@ -846,10 +851,18 @@ document.getElementById("toggleBtn").onclick = () => {
   document.getElementById("resultArea").className = lastJudge;
 };
 
+/* 「次へ」ボタンの処理を上書き */
 document.getElementById("nextBtn").onclick = () => {
+  if (!current || !lastJudge) return;
+
+  // 1. 進捗を保存
   progress[current.word.toLowerCase()] = lastJudge;
   localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
+
+  // 2. ミニ進捗表示を更新
   updateProgressMini();
+
+  // 3. 次の問題を表示（ここで getNextWord が呼ばれ、セクション制限がかかる）
   renderQuestion();
 };
 
