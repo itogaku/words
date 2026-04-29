@@ -16,7 +16,7 @@ body { margin: 0; font-family: Arial, sans-serif; padding: 8px; background: #f0f
 
 /* ナビゲーション（初期状態は非表示） */
 #quizControls { display: none; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-#quizControls.is-logged-in { display: flex; }
+#quizControls.is-logged-in { display: flex !important; }
 
 /* クイズ画面 */
 #quiz { flex-direction: column; height: 90vh; }
@@ -627,27 +627,52 @@ let selectedUser = null;
 let upper = false;
 
 /* 画面表示制御 */
+/* ===== ページ切り替え関数（統合版） ===== */
 window.showPage = function(id) {
-  // すべてのページを隠す
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  
-  // 指定したページを表示
-  const target = document.getElementById(id);
-  if(target) target.classList.add("active");
+  // 1. すべてのページから active クラスを除去して隠す
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.remove("active");
+  });
 
-  // メニューバーの表示制御
-  const controls = document.getElementById("quizControls");
-  if (currentUser) {
-    controls.classList.add("is-logged-in"); // CSSで display: flex になる
+  // 2. 指定された ID のページを表示する
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add("active");
   } else {
-    controls.classList.remove("is-logged-in");
+    console.error("Page ID not found:", id);
+    return;
   }
 
-  // セクション画面や一覧画面なら描画を更新
-  if (id === "sectionPage") renderSectionButtons();
-  if (id === "list") renderList();
-};
+  // 3. ログイン状態に応じたナビゲーションメニュー（操作ボタン）の表示制御
+  const controls = document.getElementById("quizControls");
+  if (currentUser) {
+    // ログイン中ならメニューを表示
+    controls.classList.add("is-logged-in");
+    controls.style.display = "flex"; // 強制的に表示させる
+  } else {
+    // 未ログイン（ユーザー選択画面）ならメニューを隠す
+    controls.classList.remove("is-logged-in");
+    controls.style.display = "none";
+  }
 
+  // 4. 移動先のページに応じた自動描画処理
+  if (id === "sectionPage") {
+    // セクション選択画面ならボタンを生成
+    if (typeof renderSectionButtons === "function") {
+      renderSectionButtons();
+    }
+  } else if (id === "list") {
+    // 一覧画面なら現在のセクション範囲でリストを生成
+    if (typeof renderList === "function") {
+      renderList();
+    }
+  } else if (id === "quiz") {
+    // クイズ画面へ移動した際、問題がなければ最初の問題を出す
+    if (!current && typeof renderQuestion === "function") {
+      renderQuestion();
+    }
+  }
+};
 /* ユーザー管理 */
 window.addUser = function() {
   const name = document.getElementById("newName").value.trim();
@@ -853,28 +878,84 @@ function updateProgressMini() {
 }
 
 /* 一覧表示 */
+/* ===== 一覧表示（セクション・フィルター対応版） ===== */
 window.renderList = function() {
   const table = document.getElementById("wordTable");
   const filter = document.getElementById("filter").value;
-  table.innerHTML = "<tr><th>単語</th><th>意味</th><th>状態</th></tr>";
+  
+  // テーブルのヘッダーを作成
+  table.innerHTML = "<tr><th>No</th><th>単語</th><th>意味</th><th>状態</th></tr>";
 
-  words.forEach(w => {
-    const state = progress[w.word.toLowerCase()];
+  // 1. 表示する単語の範囲を決定（セクション分け）
+  let displayWords = words;
+  let offset = 0; // 番号表示用のズレ
+  
+  if (currentSection > 0) {
+    offset = (currentSection - 1) * SECTION_SIZE;
+    displayWords = words.slice(offset, offset + SECTION_SIZE);
+  }
+
+  // 2. 絞り込んだ単語をループで回して行を作成
+  displayWords.forEach((w, index) => {
+    const key = w.word.toLowerCase();
+    const state = progress[key]; // "correct" | "wrong" | undefined
+
+    /* --- フィルター判定（正解・不正解・未回答の絞り込み） --- */
     if (filter === "correct" && state !== "correct") return;
     if (filter === "wrong" && state !== "wrong") return;
     if (filter === "unanswered" && state !== undefined) return;
 
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${w.word}</td><td>${w.meaning}</td><td style="cursor:pointer; text-align:center;">${state === "correct" ? "〇" : state === "wrong" ? "×" : "-"}</td>`;
+
+    // 通し番号（No）
+    const tdNo = document.createElement("td");
+    tdNo.textContent = offset + index + 1;
+    tdNo.style.color = "#888";
+    tdNo.style.fontSize = "12px";
+
+    // 単語
+    const tdWord = document.createElement("td");
+    tdWord.textContent = w.word;
+
+    // 意味（例文がある場合は含める）
+    const tdMeaning = document.createElement("td");
+    const meaningDiv = document.createElement("div");
+    meaningDiv.textContent = w.meaning;
+    tdMeaning.appendChild(meaningDiv);
     
-    tr.lastChild.onclick = () => {
-      const key = w.word.toLowerCase();
-      if (!progress[key]) progress[key] = "correct";
-      else if (progress[key] === "correct") progress[key] = "wrong";
-      else delete progress[key];
+    if (w.example) {
+      const exDiv = document.createElement("div");
+      exDiv.textContent = w.example.replace(/_+/g, w.word);
+      exDiv.style.fontSize = "11px";
+      exDiv.style.color = "#666";
+      tdMeaning.appendChild(exDiv);
+    }
+
+    // 状態（〇/×/-）クリックで変更可能
+    const tdStatus = document.createElement("td");
+    tdStatus.style.textAlign = "center";
+    tdStatus.style.cursor = "pointer";
+    tdStatus.textContent = 
+      state === "correct" ? "〇" : 
+      state === "wrong"   ? "×" : "-";
+
+    // クリックで状態をループさせる
+    tdStatus.onclick = () => {
+      if (!progress[key]) {
+        progress[key] = "correct";
+      } else if (progress[key] === "correct") {
+        progress[key] = "wrong";
+      } else {
+        delete progress[key];
+      }
       localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
-      renderList();
+      renderList(); // 再描画
     };
+
+    tr.appendChild(tdNo);
+    tr.appendChild(tdWord);
+    tr.appendChild(tdMeaning);
+    tr.appendChild(tdStatus);
     table.appendChild(tr);
   });
 };
