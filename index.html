@@ -150,7 +150,7 @@ button:active { background: #ddd; }
 
     <select id="listSectionSelect" onchange="changeListSection(this.value)">
       <option value="0">全単語を表示</option>
-      </select>
+    </select>
   </div>
 
   <table id="wordTable"></table>
@@ -991,15 +991,37 @@ document.getElementById("keyboardSelect").onchange = (e) => {
 /* 初期起動 */
 function init() {
   renderUserList();
+  
+  // --- セクションプルダウンの自動生成ここから ---
+  const listSelect = document.getElementById("listSectionSelect");
+  
+  if (listSelect) {
+    // 既存の「全単語を表示」以外を一旦クリア（二重生成防止）
+    listSelect.innerHTML = '<option value="0">全単語を表示</option>';
+    
+    // 単語数から必要なセクション数を計算
+    const sectionCount = Math.ceil(words.length / SECTION_SIZE);
+    
+    for (let i = 1; i <= sectionCount; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      // 表示例： Section 1 (1～20)
+      const start = (i - 1) * SECTION_SIZE + 1;
+      const end = Math.min(i * SECTION_SIZE, words.length);
+      opt.textContent = `Section ${i} (${start}～${end})`;
+      listSelect.appendChild(opt);
+    }
+  }
+  // --- セクションプルダウンの自動生成ここまで ---
+
   if (currentUser) {
     loadUserData();
-    showPage("quiz");
+    showPage("sectionPage");
   } else {
     showPage("userPage");
   }
   buildKeyboard();
 }
-
 init();
 </script>
 </body>
