@@ -337,11 +337,30 @@ button,
 
 <body>
 
+<!-- ===== ログイン画面 ===== -->
+<section id="userPage" class="page active">
+
+<h3>生徒追加</h3>
+<input id="newName" placeholder="名前">
+<input id="newPass" type="password" placeholder="パス">
+<button onclick="addUser()">追加</button>
+
+<h3>ログイン</h3>
+<div id="userList"></div>
+
+<div id="loginArea" style="display:none;">
+<input id="passwordInput" type="password">
+<button onclick="login()">ログイン</button>
+</div>
+
+</section>
+      
 <div id="quizControls">
   <button onclick="goToQuiz()">問題</button>
   <button onclick="showPage('list')">一覧</button>
   <button onclick="enableWrongOnlyMode()">不正解のみ</button>
   <button onclick="resetProgress()">リセット</button>
+  <button onclick="logout()">ログアウト</button>
 </div>
 
 
@@ -791,5 +810,134 @@ buildKeyboard();
 
 </script>
 
+<script type="module">
+
+/* ===== Firebase（そのままでOK） ===== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "words-gk.firebaseapp.com",
+  projectId: "words-gk"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore();
+
+/* ===== データ ===== */
+let users = {};
+let currentUser = null;
+let selectedUser = null;
+
+let progress = {};
+let current = null;
+
+/* ===== 単語 ===== */
+
+/* ===== 初期化 ===== */
+function init(){
+  users = JSON.parse(localStorage.getItem("users") || "{}");
+  currentUser = localStorage.getItem("currentUser");
+
+  renderUserList();
+
+  if(currentUser){
+    loadData();
+    showPage("quiz");
+  }
+}
+
+/* ===== ページ切替 ===== */
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ===== 生徒追加 ===== */
+window.addUser = function(){
+  const name = newName.value;
+  const pass = newPass.value;
+
+  if(!name || !pass) return alert("入力");
+
+  users[name]=pass;
+  localStorage.setItem("users", JSON.stringify(users));
+  renderUserList();
+}
+
+/* ===== 一覧 ===== */
+function renderUserList(){
+  userList.innerHTML="";
+
+  Object.keys(users).forEach(name=>{
+    const btn=document.createElement("button");
+    btn.textContent=name;
+    btn.onclick=()=>{
+      selectedUser=name;
+      loginArea.style.display="block";
+    };
+    userList.appendChild(btn);
+  });
+}
+
+/* ===== ログイン ===== */
+window.login = function(){
+  const pass=passwordInput.value;
+
+  if(users[selectedUser]===pass){
+    currentUser=selectedUser;
+    localStorage.setItem("currentUser",currentUser);
+
+    loadData();
+    showPage("quiz");
+  }else{
+    alert("違う");
+  }
+}
+
+/* ===== ログアウト ===== */
+window.logout=function(){
+  localStorage.removeItem("currentUser");
+  currentUser=null;
+  showPage("userPage");
+}
+
+/* ===== データ ===== */
+function loadData(){
+  progress = JSON.parse(localStorage.getItem("progress_"+currentUser) || "{}");
+  nextQuestion();
+}
+
+function saveData(){
+  localStorage.setItem("progress_"+currentUser, JSON.stringify(progress));
+}
+
+/* ===== 問題 ===== */
+
+
+/* ===== 回答 ===== */
+
+
+/* ===== Firebase送信 ===== */
+async function sendLog(word,correct){
+  try{
+    await addDoc(collection(db,"logs"),{
+      user:currentUser,
+      word,
+      correct,
+      time:Date.now()
+    });
+  }catch{
+    console.log("オフライン");
+  }
+}
+
+init();
+
+</script>
+
+
+      
 </body>
 </html>
