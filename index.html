@@ -140,7 +140,7 @@ button:active { background: #ddd; }
 </section>
 
 <section id="list" class="page">
-  <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+  <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
     <select id="filter" onchange="renderList()">
       <option value="all">全て表示</option>
       <option value="correct">正解のみ</option>
@@ -151,6 +151,10 @@ button:active { background: #ddd; }
     <select id="listSectionSelect" onchange="changeListSection(this.value)">
       <option value="0">全単語を表示</option>
     </select>
+
+    <button onclick="goToQuizFromList()" style="background: #4caf50; color: white; border: none; font-weight: bold;">
+      クイズに戻る
+    </button>
   </div>
 
   <table id="wordTable"></table>
@@ -637,14 +641,10 @@ let upper = false;
 /* ===== ページ切り替え関数（統合版） ===== */
 /* ===== ページ切り替え関数（同期処理付き） ===== */
 window.showPage = function(id) {
-  // 1. 全ページから active クラスを除去
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  
-  // 2. 指定したページを表示
   const target = document.getElementById(id);
   if(target) target.classList.add("active");
 
-  // 3. ナビゲーションメニューの表示制御
   const controls = document.getElementById("quizControls");
   if (currentUser) {
     controls.style.display = "flex";
@@ -654,22 +654,18 @@ window.showPage = function(id) {
     controls.classList.remove("is-logged-in");
   }
 
-  // 4. 一覧画面へ移動する場合の同期処理
   if (id === "list") {
     const listSelect = document.getElementById("listSectionSelect");
-    if (listSelect) {
-      // クイズで選択中のセクション番号を、一覧のプルダウンに反映させる
-      listSelect.value = currentSection;
-    }
-    // 最新の状態（セクション・フィルター適用済み）で描画
+    if (listSelect) listSelect.value = currentSection;
     renderList();
-  } 
-  
-  // 5. セクション選択画面へ移動する場合
-  else if (id === "sectionPage") {
+  } else if (id === "sectionPage") {
     renderSectionButtons();
+  } else if (id === "quiz") {
+    // クイズ画面に移動したとき、もし問題が空（完了状態など）なら再描画
+    if (!current) renderQuestion();
   }
 };
+  
 /* ユーザー管理 */
 window.addUser = function() {
   const name = document.getElementById("newName").value.trim();
@@ -962,6 +958,14 @@ window.renderList = function() {
   });
 };
 
+/* 一覧画面からクイズへ戻る処理 */
+window.goToQuizFromList = function() {
+  // 現在一覧で選んでいるセクション（currentSection）で問題を準備
+  renderQuestion();
+  // クイズ画面を表示
+  showPage("quiz");
+};
+  
 /* キーボード */
 const layouts = {
   mobile: [["a","b","c","d","e","f","g","h","i"],["j","k","l","m","n","o","p","q","r"],["shift","s","t","u","v","w","x","y","z","del"]],
