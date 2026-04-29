@@ -617,13 +617,14 @@ function renderSectionButtons() {
   }
 }
 
+/* セクション画面で選んだ時 */
 window.changeSection = function(val) {
   currentSection = parseInt(val);
-  wrongOnlyMode = false; // セクションを選び直した時は通常モードに
+  wrongOnlyMode = false;
+  updateProgressMini(); // ★追加
   renderQuestion();
-  showPage("quiz"); // セクションを選んだらクイズ画面へ
+  showPage("quiz");
 };
-
 // 既存の showPage を少し修正（セクション画面ならボタン描画）
 const originalShowPage = window.showPage;
 
@@ -682,8 +683,10 @@ window.addUser = function() {
   renderUserList();
 };
 
+/* 一覧画面のプルダウンで選んだ時 */
 window.changeListSection = function(val) {
   currentSection = parseInt(val);
+  updateProgressMini(); // ★追加
   renderList();
 };
   
@@ -870,9 +873,36 @@ window.resetProgress = () => {
   updateProgressMini();
 };
 
+/* ===== 進捗表示の更新（セクション対応版） ===== */
 function updateProgressMini() {
-  const count = Object.keys(progress).filter(k => progress[k] === "correct").length;
-  document.getElementById("progressMini").textContent = `完了: ${count} / ${words.length}`;
+  const displayElement = document.getElementById("progressMini");
+  if (!displayElement) return;
+
+  let targetWords = [];
+  let label = "";
+
+  // 1. カウント対象の単語を決定
+  if (currentSection > 0) {
+    // セクション選択時：そのセクションの20語だけを対象にする
+    const start = (currentSection - 1) * SECTION_SIZE;
+    const end = start + SECTION_SIZE;
+    targetWords = words.slice(start, end);
+    label = `Section ${currentSection}`;
+  } else {
+    // 全範囲時：すべての単語を対象にする
+    targetWords = words;
+    label = "全進捗";
+  }
+
+  // 2. 対象単語の中で、状態が "correct" になっているものをカウント
+  const total = targetWords.length;
+  const completed = targetWords.filter(w => {
+    const key = w.word.toLowerCase();
+    return progress[key] === "correct";
+  }).length;
+
+  // 3. 表示を更新（例：Section 1 完了：5 / 20）
+  displayElement.textContent = `${label} 完了：${completed} / ${total}`;
 }
 
 /* 一覧表示 */
