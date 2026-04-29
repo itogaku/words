@@ -786,13 +786,40 @@ function loadUserData() {
   renderQuestion();
 }
 
+/* ===== 出題ロジック（セクション完全固定版） ===== */
 function getNextWord() {
-  const list = words.filter(w => {
-    const s = progress[w.word.toLowerCase()];
-    if (wrongOnlyMode) return s === "wrong";
-    return s !== "correct";
+  // 1. まず「現在のセクション」に該当する単語の塊(20語)を特定する
+  let sectionWords = [];
+  
+  if (currentSection > 0) {
+    // セクション選択中（1, 2, 3...）
+    const start = (currentSection - 1) * SECTION_SIZE;
+    const end = start + SECTION_SIZE;
+    sectionWords = words.slice(start, end);
+    console.log(`出題範囲を確認: Section ${currentSection} (${start}～${end-1})`);
+  } else {
+    // 全範囲（0）
+    sectionWords = words;
+    console.log("出題範囲を確認: 全範囲");
+  }
+
+  // 2. その塊(sectionWords)の中から、まだ正解していない単語を抽出する
+  const pool = sectionWords.filter(w => {
+    const key = w.word.toLowerCase();
+    const state = progress[key];
+
+    // 不正解のみモードがONなら、×がついているものだけ
+    if (wrongOnlyMode) {
+      return state === "wrong";
+    }
+    // 通常は、〇（correct）以外のものすべて
+    return state !== "correct";
   });
-  return list.length ? list[Math.floor(Math.random() * list.length)] : null;
+
+  // 3. 候補(pool)の中からランダムに1つ選ぶ
+  if (pool.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  return pool[randomIndex];
 }
 
 function renderQuestion() {
