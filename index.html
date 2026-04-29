@@ -140,12 +140,19 @@ button:active { background: #ddd; }
 </section>
 
 <section id="list" class="page">
-  <select id="filter" onchange="renderList()" style="margin-bottom:10px; padding:5px;">
-    <option value="all">全て</option>
-    <option value="correct">正解</option>
-    <option value="wrong">不正解</option>
-    <option value="unanswered">未出題</option>
-  </select>
+  <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+    <select id="filter" onchange="renderList()">
+      <option value="all">全て表示</option>
+      <option value="correct">正解のみ</option>
+      <option value="wrong">不正解のみ</option>
+      <option value="unanswered">未出題のみ</option>
+    </select>
+
+    <select id="listSectionSelect" onchange="changeListSection(this.value)">
+      <option value="0">全単語を表示</option>
+      </select>
+  </div>
+
   <table id="wordTable"></table>
 </section>
 
@@ -629,49 +636,22 @@ let upper = false;
 /* 画面表示制御 */
 /* ===== ページ切り替え関数（統合版） ===== */
 window.showPage = function(id) {
-  // 1. すべてのページから active クラスを除去して隠す
-  document.querySelectorAll(".page").forEach(p => {
-    p.classList.remove("active");
-  });
-
-  // 2. 指定された ID のページを表示する
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById(id);
-  if (target) {
-    target.classList.add("active");
-  } else {
-    console.error("Page ID not found:", id);
-    return;
-  }
+  if(target) target.classList.add("active");
 
-  // 3. ログイン状態に応じたナビゲーションメニュー（操作ボタン）の表示制御
   const controls = document.getElementById("quizControls");
   if (currentUser) {
-    // ログイン中ならメニューを表示
+    controls.style.display = "flex";
     controls.classList.add("is-logged-in");
-    controls.style.display = "flex"; // 強制的に表示させる
   } else {
-    // 未ログイン（ユーザー選択画面）ならメニューを隠す
-    controls.classList.remove("is-logged-in");
     controls.style.display = "none";
+    controls.classList.remove("is-logged-in");
   }
 
-  // 4. 移動先のページに応じた自動描画処理
-  if (id === "sectionPage") {
-    // セクション選択画面ならボタンを生成
-    if (typeof renderSectionButtons === "function") {
-      renderSectionButtons();
-    }
-  } else if (id === "list") {
-    // 一覧画面なら現在のセクション範囲でリストを生成
-    if (typeof renderList === "function") {
-      renderList();
-    }
-  } else if (id === "quiz") {
-    // クイズ画面へ移動した際、問題がなければ最初の問題を出す
-    if (!current && typeof renderQuestion === "function") {
-      renderQuestion();
-    }
-  }
+  // 画面移動時に必要な描画を自動実行
+  if (id === "list") renderList();
+  if (id === "sectionPage") renderSectionButtons();
 };
 /* ユーザー管理 */
 window.addUser = function() {
@@ -689,6 +669,11 @@ window.addUser = function() {
   renderUserList();
 };
 
+window.changeListSection = function(val) {
+  currentSection = parseInt(val);
+  renderList();
+};
+  
 window.deleteUser = function(name) {
   if(!confirm(`「${name}」のアカウントと進捗データをすべて消去しますか？`)) return;
   
