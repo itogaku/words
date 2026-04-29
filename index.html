@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>英単語クイズ</title>
+<title>英単語クイズ Pro</title>
 <style>
 /* 基本レイアウト */
 * { box-sizing: border-box; }
@@ -13,6 +13,10 @@ body { margin: 0; font-family: Arial, sans-serif; padding: 8px; background: #f0f
 .page { display: none; padding-top: 10px; }
 .page.active { display: block; }
 .hidden { display: none !important; }
+
+/* ナビゲーション（初期状態は非表示） */
+#quizControls { display: none; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+#quizControls.is-logged-in { display: flex; }
 
 /* クイズ画面 */
 #quiz { flex-direction: column; height: 90vh; }
@@ -32,6 +36,10 @@ body { margin: 0; font-family: Arial, sans-serif; padding: 8px; background: #f0f
 #actionButtons { display: flex; gap: 8px; justify-content: center; }
 button { padding: 10px 15px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: white; }
 button:active { background: #ddd; }
+.btn-delete { color: #c62828; border-color: #ffcdd2; font-size: 12px; padding: 4px 8px; margin-left: 10px; }
+
+/* ユーザーリスト */
+.user-item { display: flex; align-items: center; justify-content: space-between; background: white; margin-bottom: 5px; padding: 5px 10px; border-radius: 4px; }
 
 /* キーボード */
 #keyboard { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
@@ -41,9 +49,6 @@ button:active { background: #ddd; }
 /* 一覧テーブル */
 #wordTable { width: 100%; border-collapse: collapse; background: white; }
 #wordTable th, #wordTable td { border: 1px solid #ccc; padding: 8px; font-size: 14px; }
-
-/* ナビゲーション */
-#quizControls { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -57,22 +62,25 @@ button:active { background: #ddd; }
 </div>
 
 <section id="userPage" class="page">
-  <h3>生徒追加</h3>
-  <input id="newName" placeholder="名前">
-  <input id="newPass" type="password" placeholder="パスワード">
-  <button onclick="addUser()">追加</button>
-  <hr>
-  <h3>ログイン</h3>
+  <div style="background:#fff; padding:15px; border-radius:8px; margin-bottom:20px;">
+    <h3>生徒追加</h3>
+    <input id="newName" placeholder="名前">
+    <input id="newPass" type="password" placeholder="パスワード">
+    <button onclick="addUser()">追加</button>
+  </div>
+  
+  <h3>生徒一覧（ログインする人を選んでね）</h3>
   <div id="userList"></div>
-  <div id="loginArea" class="hidden">
-    <p><span id="selectedUserName"></span> でログイン</p>
+  
+  <div id="loginArea" class="hidden" style="margin-top:20px; padding:15px; background:#e3f2fd; border-radius:8px;">
+    <p><strong id="selectedUserName"></strong> でログイン</p>
     <input id="passwordInput" type="password" placeholder="パスワードを入力">
-    <button onclick="login()">ログイン</button>
+    <button onclick="login()" style="background:#2196f3; color:white; border:none;">ログイン</button>
   </div>
 </section>
 
 <section id="quiz" class="page">
-  <div id="progressMini"></div>
+  <div id="progressMini" style="font-size:14px; color:#666;"></div>
   <div id="quizContent">
     <div id="meaning"></div>
     <div id="exampleArea">
@@ -98,7 +106,7 @@ button:active { background: #ddd; }
 
   <div id="quizKeyboard">
     <div id="keyboard"></div>
-    <select id="keyboardSelect" style="margin-top:10px;">
+    <select id="keyboardSelect" style="margin-top:15px;">
       <option value="mobile">アルファベット配列</option>
       <option value="qwerty">QWERTY</option>
     </select>
@@ -106,7 +114,7 @@ button:active { background: #ddd; }
 </section>
 
 <section id="list" class="page">
-  <select id="filter" onchange="renderList()">
+  <select id="filter" onchange="renderList()" style="margin-bottom:10px; padding:5px;">
     <option value="all">全て</option>
     <option value="correct">正解</option>
     <option value="wrong">不正解</option>
@@ -116,7 +124,6 @@ button:active { background: #ddd; }
 </section>
 
 <script type="module">
-/* 1. 基本データと初期化 */
 const words = [
   { word: "act", meaning: "行動する", example: "We must _____ now.", exampleJa: "私たちは今すぐ行動しなければならない。" },
   { word: "weather", meaning: "天気", example: "The ____ is nice today.", exampleJa: "今日は天気がいいです。" },
@@ -131,22 +138,56 @@ let currentUser = localStorage.getItem("currentUser");
 let selectedUser = null;
 let upper = false;
 
-/* 2. ページ管理 */
+/* 画面表示制御 */
 window.showPage = function(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById(id);
   if(target) target.classList.add("active");
+  
+  // ログイン中かどうかでメニューの表示を切り替え
+  const controls = document.getElementById("quizControls");
+  if (currentUser) {
+    controls.classList.add("is-logged-in");
+  } else {
+    controls.classList.remove("is-logged-in");
+  }
+
   if(id === 'list') renderList();
 };
 
-/* 3. ユーザー管理 */
+/* ユーザー管理 */
 window.addUser = function() {
-  const name = document.getElementById("newName").value;
-  const pass = document.getElementById("newPass").value;
+  const name = document.getElementById("newName").value.trim();
+  const pass = document.getElementById("newPass").value.trim();
   if(!name || !pass) return alert("名前とパスを入力してください");
+  
   let users = JSON.parse(localStorage.getItem("users") || "{}");
+  if(users[name]) return alert("その名前は既に使われています");
+  
   users[name] = pass;
   localStorage.setItem("users", JSON.stringify(users));
+  document.getElementById("newName").value = "";
+  document.getElementById("newPass").value = "";
+  renderUserList();
+};
+
+window.deleteUser = function(name) {
+  if(!confirm(`「${name}」のアカウントと進捗データをすべて消去しますか？`)) return;
+  
+  // ユーザーリストから削除
+  let users = JSON.parse(localStorage.getItem("users") || "{}");
+  delete users[name];
+  localStorage.setItem("users", JSON.stringify(users));
+  
+  // 進捗データも削除
+  localStorage.removeItem("progress_" + name);
+  
+  // 選択中のユーザーだったらリセット
+  if(selectedUser === name) {
+    selectedUser = null;
+    document.getElementById("loginArea").classList.add("hidden");
+  }
+  
   renderUserList();
 };
 
@@ -154,16 +195,32 @@ function renderUserList() {
   const container = document.getElementById("userList");
   container.innerHTML = "";
   let users = JSON.parse(localStorage.getItem("users") || "{}");
+  
   Object.keys(users).forEach(name => {
-    const btn = document.createElement("button");
-    btn.textContent = name;
-    btn.style.margin = "4px";
-    btn.onclick = () => {
+    const div = document.createElement("div");
+    div.className = "user-item";
+    
+    const nameBtn = document.createElement("button");
+    nameBtn.textContent = name;
+    nameBtn.style.flex = "1";
+    nameBtn.style.textAlign = "left";
+    nameBtn.onclick = () => {
       selectedUser = name;
       document.getElementById("selectedUserName").textContent = name;
       document.getElementById("loginArea").classList.remove("hidden");
     };
-    container.appendChild(btn);
+    
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "削除";
+    delBtn.className = "btn-delete";
+    delBtn.onclick = (e) => {
+      e.stopPropagation(); // ログイン選択イベントを防ぐ
+      deleteUser(name);
+    };
+    
+    div.appendChild(nameBtn);
+    div.appendChild(delBtn);
+    container.appendChild(div);
   });
 }
 
@@ -184,11 +241,13 @@ window.login = function() {
 window.logout = function() {
   localStorage.removeItem("currentUser");
   currentUser = null;
+  selectedUser = null;
   progress = {};
+  document.getElementById("loginArea").classList.add("hidden");
   showPage("userPage");
 };
 
-/* 4. クイズロジック */
+/* クイズロジック */
 function loadUserData() {
   if(!currentUser) return;
   progress = JSON.parse(localStorage.getItem("progress_" + currentUser) || "{}");
@@ -213,6 +272,8 @@ function renderQuestion() {
 
   if (!current) {
     document.getElementById("meaning").textContent = "学習完了！";
+    document.getElementById("exampleEn").textContent = "";
+    document.getElementById("exampleJa").textContent = "";
     return;
   }
 
@@ -236,11 +297,8 @@ document.getElementById("checkBtn").onclick = () => {
   lastJudge = ok ? "correct" : "wrong";
 
   const resultArea = document.getElementById("resultArea");
-  const judgeText = document.getElementById("judge");
-  
-  judgeText.textContent = ok ? "◎" : "✕";
+  document.getElementById("judge").textContent = ok ? "◎" : "✕";
   resultArea.className = ok ? "correct" : "wrong";
-  
   document.getElementById("correctWord").textContent = "答え: " + current.word;
   if (current.example) {
     document.getElementById("answerExample").textContent = current.example.replace(/_+/g, current.word);
@@ -277,10 +335,11 @@ window.enableWrongOnlyMode = () => {
 };
 
 window.resetProgress = () => {
-  if (!confirm("現在のユーザーの進捗をリセットしますか？")) return;
+  if (!confirm("進捗データをリセットしますか？")) return;
   progress = {};
   localStorage.removeItem("progress_" + currentUser);
   renderQuestion();
+  updateProgressMini();
 };
 
 function updateProgressMini() {
@@ -288,7 +347,7 @@ function updateProgressMini() {
   document.getElementById("progressMini").textContent = `完了: ${count} / ${words.length}`;
 }
 
-/* 5. 一覧表示 */
+/* 一覧表示 */
 window.renderList = function() {
   const table = document.getElementById("wordTable");
   const filter = document.getElementById("filter").value;
@@ -301,7 +360,7 @@ window.renderList = function() {
     if (filter === "unanswered" && state !== undefined) return;
 
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${w.word}</td><td>${w.meaning}</td><td style="cursor:pointer">${state === "correct" ? "〇" : state === "wrong" ? "×" : "-"}</td>`;
+    tr.innerHTML = `<td>${w.word}</td><td>${w.meaning}</td><td style="cursor:pointer; text-align:center;">${state === "correct" ? "〇" : state === "wrong" ? "×" : "-"}</td>`;
     
     tr.lastChild.onclick = () => {
       const key = w.word.toLowerCase();
@@ -315,7 +374,7 @@ window.renderList = function() {
   });
 };
 
-/* 6. キーボード */
+/* キーボード */
 const layouts = {
   mobile: [["a","b","c","d","e","f","g","h","i"],["j","k","l","m","n","o","p","q","r"],["shift","s","t","u","v","w","x","y","z","del"]],
   qwerty: [["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["shift","z","x","c","v","b","n","m","del"]]
