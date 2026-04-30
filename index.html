@@ -594,27 +594,33 @@ const SECTION_SIZE = 20; // 1セクションあたりの単語数
 let currentSection = 0;   // 0なら全範囲、1なら1〜20番...
 
 // セクション画面を表示するたびにボタンを更新
+/* ===== セクションボタンの生成と一覧への遷移 ===== */
 function renderSectionButtons() {
   const container = document.getElementById("sectionContainer");
-  if (!container) return; // 要素がない場合は中断
+  if (!container) return; // 要素が見つからない場合は中断
+
+  container.innerHTML = ""; // 一旦リセット
   
-  container.innerHTML = ""; // 一旦中身を空にする
-  
+  // 単語数からセクション数を計算（1セクション20語）
   const sectionCount = Math.ceil(words.length / SECTION_SIZE);
 
   for (let i = 1; i <= sectionCount; i++) {
     const btn = document.createElement("button");
-    btn.className = "section-btn"; // スタイル用
-    btn.style.height = "70px";
-    btn.style.fontSize = "16px";
-    btn.style.cursor = "pointer";
-    btn.innerHTML = `<strong>Section ${i}</strong><br><small>${(i-1)*SECTION_SIZE + 1}～${Math.min(i*SECTION_SIZE, words.length)}</small>`;
+    btn.className = "section-btn";
+    btn.style.cssText = "height:70px; font-size:16px; cursor:pointer; border:2px solid #2196f3; border-radius:8px; background:white; color:#2196f3; font-weight:bold;";
     
+    // ボタンのテキスト表示
+    const start = (i - 1) * SECTION_SIZE + 1;
+    const end = Math.min(i * SECTION_SIZE, words.length);
+    btn.innerHTML = `Section ${i}<br><span style="font-size:11px; font-weight:normal;">(${start}～${end})</span>`;
+    
+    // ★ボタンを押した時の動き：セクションをセットして「一覧」へ
     btn.onclick = () => {
-      currentSection = i; // セクション番号をセット
-      updateProgressMini(); // 進捗表示を更新
-      showPage("list");     // ★重要：クイズではなく「一覧」へ移動！
+      currentSection = i;
+      updateProgressMini(); // カウントをそのセクション用に更新
+      showPage("list");     // 一覧画面へ移動
     };
+    
     container.appendChild(btn);
   }
 }
@@ -644,33 +650,30 @@ let upper = false;
 /* ===== ページ切り替え関数（統合版） ===== */
 /* ===== ページ切り替え関数（同期処理付き） ===== */
 window.showPage = function(id) {
+  // 1. ページ切り替え
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById(id);
   if(target) target.classList.add("active");
 
+  // 2. メニューバー表示
   const controls = document.getElementById("quizControls");
   if (currentUser) {
     controls.style.display = "flex";
-    controls.classList.add("is-logged-in");
   } else {
     controls.style.display = "none";
-    controls.classList.remove("is-logged-in");
   }
 
-  if (id === "list") {
+  // 3. 各画面ごとの個別処理
+  if (id === "sectionPage") {
+    renderSectionButtons(); // セクション画面ならボタンを再描画
+  } else if (id === "list") {
+    // 一覧画面ならプルダウンを同期して描画
     const listSelect = document.getElementById("listSectionSelect");
     if (listSelect) listSelect.value = currentSection;
-  
-    // セクションが選ばれている（0以外）時だけ「テストする」ボタンを表示
-    const startBtn = document.getElementById("startQuizBtn");
-    if (startBtn) {
-      startBtn.style.display = currentSection > 0 ? "inline-block" : "none";
-    }
-  
     renderList();
   }
 };
-
+  
 window.goToQuizFromList = function() {
   // 不正解のみモードをリセット（通常の学習から始めるため）
   wrongOnlyMode = false;
@@ -767,9 +770,9 @@ window.login = function() {
     localStorage.setItem("currentUser", currentUser);
     document.getElementById("passwordInput").value = "";
     
-    loadUserData(); // 進捗読み込み
-    renderSectionButtons(); // ★ここでボタンを作成！
-    showPage("sectionPage"); // 画面移動
+    loadUserData();           // 進捗読み込み
+    renderSectionButtons();   // ★ここでボタンを強制的に描画！
+    showPage("sectionPage");  // 画面移動
   } else {
     alert("パスワードが違います");
   }
