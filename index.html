@@ -140,7 +140,7 @@ button:active { background: #ddd; }
 </section>
 
 <section id="list" class="page">
-  <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
     <select id="filter" onchange="renderList()">
       <option value="all">全て表示</option>
       <option value="correct">正解のみ</option>
@@ -152,8 +152,8 @@ button:active { background: #ddd; }
       <option value="0">全単語を表示</option>
     </select>
 
-    <button onclick="goToQuizFromList()" style="background: #4caf50; color: white; border: none; font-weight: bold;">
-      クイズに戻る
+    <button id="startQuizBtn" onclick="goToQuizFromList()" style="background: #2196f3; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 20px;">
+      この範囲をテストする
     </button>
   </div>
 
@@ -611,7 +611,9 @@ function renderSectionButtons() {
     btn.innerHTML = `<strong>Section ${i}</strong><br><small>${(i-1)*SECTION_SIZE + 1}～${Math.min(i*SECTION_SIZE, words.length)}</small>`;
     
     btn.onclick = () => {
-      changeSection(i);
+      currentSection = i; // セクション番号をセット
+      updateProgressMini(); // 進捗表示を更新
+      showPage("list");     // ★重要：クイズではなく「一覧」へ移動！
     };
     container.appendChild(btn);
   }
@@ -658,13 +660,26 @@ window.showPage = function(id) {
   if (id === "list") {
     const listSelect = document.getElementById("listSectionSelect");
     if (listSelect) listSelect.value = currentSection;
+  
+    // セクションが選ばれている（0以外）時だけ「テストする」ボタンを表示
+    const startBtn = document.getElementById("startQuizBtn");
+    if (startBtn) {
+      startBtn.style.display = currentSection > 0 ? "inline-block" : "none";
+    }
+  
     renderList();
-  } else if (id === "sectionPage") {
-    renderSectionButtons();
-  } else if (id === "quiz") {
-    // クイズ画面に移動したとき、もし問題が空（完了状態など）なら再描画
-    if (!current) renderQuestion();
   }
+};
+
+window.goToQuizFromList = function() {
+  // 不正解のみモードをリセット（通常の学習から始めるため）
+  wrongOnlyMode = false;
+  
+  // 現在のセクションに基づいた問題を準備
+  renderQuestion();
+  
+  // クイズ画面を表示
+  showPage("quiz");
 };
   
 /* ユーザー管理 */
