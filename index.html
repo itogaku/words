@@ -886,14 +886,9 @@ document.getElementById("checkBtn").onclick = () => {
 
   document.getElementById("checkBtn").disabled = true;
   document.getElementById("nextBtn").classList.remove("hidden");
-  document.getElementById("toggleBtn").classList.remove("hidden");
 };
 
-document.getElementById("toggleBtn").onclick = () => {
-  lastJudge = (lastJudge === "correct") ? "wrong" : "correct";
-  document.getElementById("judge").textContent = (lastJudge === "correct") ? "◎" : "✕";
-  document.getElementById("resultArea").className = lastJudge;
-};
+
 
 /* 「次へ」ボタンの処理を上書き */
 document.getElementById("nextBtn").onclick = () => {
@@ -981,66 +976,21 @@ window.renderList = function() {
   }
 
   // 2. 絞り込んだ単語をループで回して行を作成
+  /* --- 修正後の renderList 内のループ部分 --- */
   displayWords.forEach((w, index) => {
     const key = w.word.toLowerCase();
-    const state = progress[key]; // "correct" | "wrong" | undefined
-
-    /* --- フィルター判定（正解・不正解・未回答の絞り込み） --- */
-    if (filter === "correct" && state !== "correct") return;
-    if (filter === "wrong" && state !== "wrong") return;
-    if (filter === "unanswered" && state !== undefined) return;
+    const state = progress[key];
 
     const tr = document.createElement("tr");
-
-    // 通し番号（No）
-    const tdNo = document.createElement("td");
-    tdNo.textContent = offset + index + 1;
-    tdNo.style.color = "#888";
-    tdNo.style.fontSize = "12px";
-
-    // 単語
-    const tdWord = document.createElement("td");
-    tdWord.textContent = w.word;
-
-    // 意味（例文がある場合は含める）
-    const tdMeaning = document.createElement("td");
-    const meaningDiv = document.createElement("div");
-    meaningDiv.textContent = w.meaning;
-    tdMeaning.appendChild(meaningDiv);
-    
-    if (w.example) {
-      const exDiv = document.createElement("div");
-      exDiv.textContent = w.example.replace(/_+/g, w.word);
-      exDiv.style.fontSize = "11px";
-      exDiv.style.color = "#666";
-      tdMeaning.appendChild(exDiv);
-    }
-
-    // 状態（〇/×/-）クリックで変更可能
-    const tdStatus = document.createElement("td");
-    tdStatus.style.textAlign = "center";
-    tdStatus.style.cursor = "pointer";
-    tdStatus.textContent = 
-      state === "correct" ? "〇" : 
-      state === "wrong"   ? "×" : "-";
-
-    // クリックで状態をループさせる
-    tdStatus.onclick = () => {
-      if (!progress[key]) {
-        progress[key] = "correct";
-      } else if (progress[key] === "correct") {
-        progress[key] = "wrong";
-      } else {
-        delete progress[key];
-      }
-      localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
-      renderList(); // 再描画
-    };
-
-    tr.appendChild(tdNo);
-    tr.appendChild(tdWord);
-    tr.appendChild(tdMeaning);
-    tr.appendChild(tdStatus);
+    tr.innerHTML = `
+      <td style="color:#999; font-size:11px;">${offset + index + 1}</td>
+      <td>${w.word}</td>
+      <td><div>${w.meaning}</div><div style="font-size:11px; color:#666;">${w.example ? w.example.replace(/_+/g, w.word) : ''}</div></td>
+      <td style="text-align:center;">${state === "correct" ? "〇" : state === "wrong" ? "×" : "-"}</td>
+    `;
+  
+    // ★重要：ここにあった tdStatus.onclick や tr.lastChild.onclick のブロックを完全に消去します。
+  
     table.appendChild(tr);
   });
 };
