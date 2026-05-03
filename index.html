@@ -720,6 +720,12 @@ document.getElementById("checkBtn").onclick = () => {
   const ok = val === current.word.toLowerCase();
   lastJudge = ok ? "correct" : "wrong";
 
+  // --- ★ここから追加：判定直後に進捗を保存する ---
+  progress[current.word.toLowerCase()] = lastJudge;
+  localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
+  updateProgressMini(); // カウント表示も即座に更新
+  // --- ★ここまで追加 ---
+
   const res = document.getElementById("resultArea");
   const j = document.getElementById("judge");
   j.textContent = ok ? "◎" : "✕";
@@ -736,9 +742,7 @@ document.getElementById("checkBtn").onclick = () => {
 };
 
 document.getElementById("nextBtn").onclick = () => {
-  progress[current.word.toLowerCase()] = lastJudge;
-  localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
-  updateProgressMini();
+  // すでに保存は完了しているので、次の問題を出すだけ
   renderQuestion();
 };
 
