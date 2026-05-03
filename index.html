@@ -5,69 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>英単語クイズ Pro</title>
 <style>
-/* 基本レイアウト */
+/* ===== 基本レイアウト ===== */
 * { box-sizing: border-box; }
-body { margin: 0; font-family: Arial, sans-serif; padding: 8px; background: #f0f2f5; }
+body { margin: 0; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; padding: 8px; background: #f0f2f5; color: #333; }
 
-/* ページ切り替え */
+/* ===== ページ管理 ===== */
 .page { display: none; padding-top: 10px; }
 .page.active { display: block; }
-.hidden { display: none !important; }
+#quiz.active { display: flex; flex-direction: column; height: 92vh; }
 
-/* ナビゲーション（初期状態は非表示） */
+/* ===== ナビゲーション ===== */
 #quizControls { display: none; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-#quizControls.is-logged-in { display: flex !important; }
+#quizControls.is-logged-in { display: flex; }
 
-/* クイズ画面 */
-#quiz { flex-direction: column; height: 90vh; }
-#quizContent { text-align: center; margin-bottom: 10px; }
-#meaning { font-size: 24px; font-weight: bold; margin: 15px 0; }
-#exampleArea { background: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; min-height: 60px; }
+/* ===== ログイン・セクション画面 ===== */
+.card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.user-item { display: flex; align-items: center; justify-content: space-between; background: white; margin-bottom: 5px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; }
+#sectionContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.section-btn { height: 75px; border: 2px solid #2196f3; border-radius: 10px; background: white; color: #2196f3; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.section-btn:active { background: #e3f2fd; }
 
-/* 判定表示 */
-#resultArea { min-height: 100px; text-align: center; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-#resultArea.correct { background: #eef8f1; }
-#resultArea.wrong { background: #fdf1f1; }
-#judge { font-size: 32px; font-weight: bold; }
-#correctWord { font-size: 18px; margin: 5px 0; }
+/* ===== クイズ画面 ===== */
+#quizContent { text-align: center; flex: 1; overflow-y: auto; }
+#meaning { font-size: 26px; font-weight: bold; margin: 15px 0; color: #1a73e8; }
+#exampleArea { background: #fff; padding: 12px; border-radius: 8px; margin: 10px auto; width: 95%; min-height: 70px; border: 1px solid #eee; }
+#resultArea { min-height: 110px; text-align: center; border-radius: 8px; padding: 10px; margin-bottom: 10px; transition: 0.3s; }
+#resultArea.correct { background: #e8f5e9; border: 1px solid #c8e6c9; }
+#resultArea.wrong { background: #ffebee; border: 1px solid #ffcdd2; }
+#judge { font-size: 40px; font-weight: bold; line-height: 1; }
+.correct-text { color: #2e7d32; }
+.wrong-text { color: #c62828; }
 
-/* 入力・ボタン */
-#answerInput { width: 90%; font-size: 20px; text-align: center; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
-#actionButtons { display: flex; gap: 8px; justify-content: center; }
-button { padding: 10px 15px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: white; }
-button:active { background: #ddd; }
-.btn-delete { color: #c62828; border-color: #ffcdd2; font-size: 12px; padding: 4px 8px; margin-left: 10px; }
-
-/* ユーザーリスト */
-.user-item { display: flex; align-items: center; justify-content: space-between; background: white; margin-bottom: 5px; padding: 5px 10px; border-radius: 4px; }
-
-/* キーボード */
-#keyboard { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+/* ===== 入力・キーボード ===== */
+#answerInput { width: 90%; font-size: 22px; text-align: center; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; background: #fff; }
+#keyboard { display: flex; flex-direction: column; gap: 5px; background: #fff; padding: 10px; border-radius: 8px; }
 .key-row { display: flex; justify-content: center; gap: 4px; }
-.key-row button { min-width: 35px; height: 40px; padding: 0; }
+.key-row button { min-width: 35px; height: 42px; border: 1px solid #ccc; background: #fff; border-radius: 4px; font-size: 16px; cursor: pointer; touch-action: manipulation; }
+.key-row button:active { background: #ddd; }
 
-/* 一覧テーブル */
+/* ===== 一覧テーブル ===== */
 #wordTable { width: 100%; border-collapse: collapse; background: white; }
-#wordTable th, #wordTable td { border: 1px solid #ccc; padding: 8px; font-size: 14px; }
+#wordTable th, #wordTable td { border: 1px solid #eee; padding: 10px 8px; font-size: 14px; text-align: left; }
+#wordTable th { background: #f8f9fa; }
 
-.is-logged-in { display: flex !important; }
-
-#sectionContainer button {
-  border: 2px solid #2196f3;
-  border-radius: 8px;
-  color: #2196f3;
-  font-weight: bold;
-  transition: 0.2s;
-}
-
-#sectionContainer button:active {
-  background: #2196f3;
-  color: white;
-}
-
-.page { display: none; }
-.page.active { display: block !important; }
-#quiz.active { display: flex !important; } /* クイズ画面がflexの場合 */
+/* ===== 共通ボタン ===== */
+button { padding: 10px 15px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; background: white; font-size: 14px; }
+.btn-primary { background: #2196f3; color: white; border: none; font-weight: bold; }
+.btn-delete { color: #d32f2f; border: 1px solid #ffcdd2; font-size: 12px; padding: 4px 8px; }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -78,84 +63,84 @@ button:active { background: #ddd; }
   <button onclick="logout()">ログアウト</button>
 </div>
 
-<section id="sectionPage" class="page">
-  <h2 style="text-align:center;">学習セクションを選択</h2>
-  <div id="sectionContainer" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:10px;">
-    </div>
-  <div style="padding:10px; border-top:1px solid #ccc; margin-top:20px;">
-    <button onclick="changeSection(0)" style="width:100%; height:50px; background:#f0f0f0;">全範囲から出題</button>
-  </div>
-</section>
-
-<section id="userPage" class="page">
-  <div style="background:#fff; padding:15px; border-radius:8px; margin-bottom:20px;">
+<!-- ログイン画面 -->
+<section id="userPage" class="page active">
+  <div class="card">
     <h3>生徒追加</h3>
-    <input id="newName" placeholder="名前">
-    <input id="newPass" type="password" placeholder="パスワード">
-    <button onclick="addUser()">追加</button>
+    <input id="newName" placeholder="名前" style="padding:8px;">
+    <input id="newPass" type="password" placeholder="パスワード" style="padding:8px;">
+    <button onclick="addUser()" class="btn-primary">追加</button>
   </div>
   
-  <h3>生徒一覧（ログインする人を選んでね）</h3>
+  <h3>生徒一覧</h3>
   <div id="userList"></div>
   
-  <div id="loginArea" class="hidden" style="margin-top:20px; padding:15px; background:#e3f2fd; border-radius:8px;">
+  <div id="loginArea" class="hidden card" style="background:#e3f2fd;">
     <p><strong id="selectedUserName"></strong> でログイン</p>
-    <input id="passwordInput" type="password" placeholder="パスワードを入力">
-    <button onclick="login()" style="background:#2196f3; color:white; border:none;">ログイン</button>
+    <input id="passwordInput" type="password" placeholder="パスワードを入力" style="padding:10px; width:100%; margin-bottom:10px;">
+    <button onclick="login()" class="btn-primary" style="width:100%;">ログイン</button>
   </div>
 </section>
 
+<!-- セクション選択画面 -->
+<section id="sectionPage" class="page">
+  <h2 style="text-align:center;">学習セクションを選択</h2>
+  <div id="sectionContainer"></div>
+  <div style="margin-top:20px; padding:10px;">
+    <button onclick="changeSection(0)" style="width:100%; height:50px;">全範囲を暗記する</button>
+  </div>
+</section>
+
+<!-- クイズ画面 -->
 <section id="quiz" class="page">
-  <div id="progressMini" style="font-size:14px; color:#666;"></div>
+  <div id="progressMini" style="text-align:center; font-size:13px; color:#666; margin-bottom:5px;"></div>
   <div id="quizContent">
     <div id="meaning"></div>
     <div id="exampleArea">
-      <div id="exampleEn"></div>
-      <div id="exampleJa"></div>
+      <div id="exampleEn" style="font-style:italic; color:#444;"></div>
+      <div id="exampleJa" style="font-size:13px; color:#888; margin-top:4px;"></div>
     </div>
   </div>
 
   <div id="resultArea">
     <div id="judge"></div>
-    <div id="correctWord"></div>
-    <div id="answerExample"></div>
+    <div id="correctWord" style="font-weight:bold; margin-top:8px;"></div>
+    <div id="answerExample" style="font-size:14px; color:#555; margin-top:5px;"></div>
   </div>
 
-  <div id="answerControlArea">
-    <input id="answerInput" type="text" readonly>
-    <div id="actionButtons">
-      <button id="checkBtn">回答</button>
-      <button id="nextBtn" class="hidden">次へ</button>
+  <div id="answerControlArea" style="text-align:center;">
+    <input id="answerInput" type="text" readonly placeholder="キーボードで入力">
+    <div id="actionButtons" style="margin-bottom:10px;">
+      <button id="checkBtn" class="btn-primary" style="width:120px;">回答</button>
+      <button id="nextBtn" class="hidden btn-primary" style="width:120px;">次へ</button>
     </div>
   </div>
 
   <div id="quizKeyboard">
     <div id="keyboard"></div>
-    <select id="keyboardSelect" style="margin-top:15px;">
-      <option value="mobile">アルファベット配列</option>
-      <option value="qwerty">QWERTY</option>
+    <select id="keyboardSelect" style="width:100%; margin-top:10px; padding:5px; border-radius:5px;">
+      <option value="mobile">アルファベット順</option>
+      <option value="qwerty">QWERTY配列</option>
     </select>
   </div>
 </section>
 
+<!-- 一覧画面 -->
 <section id="list" class="page">
-  <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-    <select id="filter" onchange="renderList()">
+  <div class="card" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <select id="filter" onchange="renderList()" style="padding:8px;">
       <option value="all">全て表示</option>
       <option value="correct">正解のみ</option>
       <option value="wrong">不正解のみ</option>
       <option value="unanswered">未出題のみ</option>
     </select>
 
-    <select id="listSectionSelect" onchange="changeListSection(this.value)">
+    <select id="listSectionSelect" onchange="changeListSection(this.value)" style="padding:8px;">
       <option value="0">全単語を表示</option>
     </select>
 
-    <button id="startQuizBtn" onclick="goToQuizFromList()" style="background: #2196f3; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 20px;">
-      この範囲をテストする
-    </button>
+    <button id="startQuizBtn" onclick="goToQuizFromList()" class="btn-primary">この範囲をテスト</button>
   </div>
-
   <table id="wordTable"></table>
 </section>
 
@@ -589,110 +574,51 @@ const words = [
 ];
 
 
-const SECTION_SIZE = 20; // 1セクションあたりの単語数
-let currentSection = 0;   // 0なら全範囲、1なら1〜20番...
-
-// セクション画面を表示するたびにボタンを更新
-/* ===== セクションボタンの生成と一覧への遷移 ===== */
-function renderSectionButtons() {
-  const container = document.getElementById("sectionContainer");
-  if (!container) return; // 要素が見つからない場合は中断
-
-  container.innerHTML = ""; // 一旦リセット
-  
-  // 単語数からセクション数を計算（1セクション20語）
-  const sectionCount = Math.ceil(words.length / SECTION_SIZE);
-
-  for (let i = 1; i <= sectionCount; i++) {
-    const btn = document.createElement("button");
-    btn.className = "section-btn";
-    btn.style.cssText = "height:70px; font-size:16px; cursor:pointer; border:2px solid #2196f3; border-radius:8px; background:white; color:#2196f3; font-weight:bold;";
-    
-    // ボタンのテキスト表示
-    const start = (i - 1) * SECTION_SIZE + 1;
-    const end = Math.min(i * SECTION_SIZE, words.length);
-    btn.innerHTML = `Section ${i}<br><span style="font-size:11px; font-weight:normal;">(${start}～${end})</span>`;
-    
-    // ★ボタンを押した時の動き：セクションをセットして「一覧」へ
-    btn.onclick = () => {
-      currentSection = i;
-      updateProgressMini(); // カウントをそのセクション用に更新
-      showPage("list");     // 一覧画面へ移動
-    };
-    
-    container.appendChild(btn);
-  }
-}
-
-/* セクション画面で選んだ時 */
-window.changeSection = function(val) {
-  currentSection = parseInt(val);
-  wrongOnlyMode = false;
-  updateProgressMini(); // ★追加
-  renderQuestion();
-  showPage("quiz");
-};
-// 既存の showPage を少し修正（セクション画面ならボタン描画）
-const originalShowPage = window.showPage;
-
-  
+const SECTION_SIZE = 20;
 let progress = {};
 let current = null;
 let lastJudge = null;
-let wrongOnlyMode = false;
+let currentSection = 0;
 let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
 let currentUser = localStorage.getItem("currentUser");
 let selectedUser = null;
 let upper = false;
 
-/* 画面表示制御 */
-/* ===== ページ切り替え関数（統合版） ===== */
-/* ===== ページ切り替え関数（同期処理付き） ===== */
+/* ===== 画面表示制御 ===== */
 window.showPage = function(id) {
-  // 1. ページ切り替え
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   const target = document.getElementById(id);
   if(target) target.classList.add("active");
 
-  // 2. メニューバー表示
   const controls = document.getElementById("quizControls");
   if (currentUser) {
+    controls.classList.add("is-logged-in");
     controls.style.display = "flex";
   } else {
+    controls.classList.remove("is-logged-in");
     controls.style.display = "none";
   }
 
-  // 3. 各画面ごとの個別処理
-  if (id === "sectionPage") {
-    renderSectionButtons(); // セクション画面ならボタンを再描画
-  } else if (id === "list") {
-    // 一覧画面ならプルダウンを同期して描画
+  if (id === "list") {
     const listSelect = document.getElementById("listSectionSelect");
     if (listSelect) listSelect.value = currentSection;
+    const startBtn = document.getElementById("startQuizBtn");
+    if (startBtn) startBtn.style.display = currentSection > 0 ? "inline-block" : "none";
     renderList();
+  } 
+  else if (id === "sectionPage") renderSectionButtons();
+  else if (id === "quiz") {
+    updateProgressMini();
+    if (!current) renderQuestion();
   }
 };
-  
-window.goToQuizFromList = function() {
-  // 不正解のみモードをリセット（通常の学習から始めるため）
-  wrongOnlyMode = false;
-  
-  // 現在のセクションに基づいた問題を準備
-  renderQuestion();
-  
-  // クイズ画面を表示
-  showPage("quiz");
-};
-  
-/* ユーザー管理 */
+
+/* ===== ユーザー管理 ===== */
 window.addUser = function() {
   const name = document.getElementById("newName").value.trim();
   const pass = document.getElementById("newPass").value.trim();
-  if(!name || !pass) return alert("名前とパスを入力してください");
-  
+  if(!name || !pass) return alert("名前とパスワードを入力してください");
   let users = JSON.parse(localStorage.getItem("users") || "{}");
-  if(users[name]) return alert("その名前は既に使われています");
-  
   users[name] = pass;
   localStorage.setItem("users", JSON.stringify(users));
   document.getElementById("newName").value = "";
@@ -700,30 +626,12 @@ window.addUser = function() {
   renderUserList();
 };
 
-/* 一覧画面のプルダウンで選んだ時 */
-window.changeListSection = function(val) {
-  currentSection = parseInt(val);
-  updateProgressMini(); // ★追加
-  renderList();
-};
-  
 window.deleteUser = function(name) {
-  if(!confirm(`「${name}」のアカウントと進捗データをすべて消去しますか？`)) return;
-  
-  // ユーザーリストから削除
+  if(!confirm(`「${name}」のデータを完全に削除しますか？`)) return;
   let users = JSON.parse(localStorage.getItem("users") || "{}");
   delete users[name];
   localStorage.setItem("users", JSON.stringify(users));
-  
-  // 進捗データも削除
   localStorage.removeItem("progress_" + name);
-  
-  // 選択中のユーザーだったらリセット
-  if(selectedUser === name) {
-    selectedUser = null;
-    document.getElementById("loginArea").classList.add("hidden");
-  }
-  
   renderUserList();
 };
 
@@ -731,279 +639,170 @@ function renderUserList() {
   const container = document.getElementById("userList");
   container.innerHTML = "";
   let users = JSON.parse(localStorage.getItem("users") || "{}");
-  
   Object.keys(users).forEach(name => {
     const div = document.createElement("div");
     div.className = "user-item";
-    
-    const nameBtn = document.createElement("button");
-    nameBtn.textContent = name;
-    nameBtn.style.flex = "1";
-    nameBtn.style.textAlign = "left";
-    nameBtn.onclick = () => {
-      selectedUser = name;
-      document.getElementById("selectedUserName").textContent = name;
-      document.getElementById("loginArea").classList.remove("hidden");
-    };
-    
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "削除";
-    delBtn.className = "btn-delete";
-    delBtn.onclick = (e) => {
-      e.stopPropagation(); // ログイン選択イベントを防ぐ
-      deleteUser(name);
-    };
-    
-    div.appendChild(nameBtn);
-    div.appendChild(delBtn);
+    div.innerHTML = `<span>${name}</span><div><button onclick="selectUser('${name}')">選択</button><button class="btn-delete" onclick="deleteUser('${name}')">削除</button></div>`;
     container.appendChild(div);
   });
 }
 
+window.selectUser = function(name) {
+  selectedUser = name;
+  document.getElementById("selectedUserName").textContent = name;
+  document.getElementById("loginArea").classList.remove("hidden");
+};
+
 window.login = function() {
   const pass = document.getElementById("passwordInput").value;
   let users = JSON.parse(localStorage.getItem("users") || "{}");
-  
   if(users[selectedUser] === pass) {
     currentUser = selectedUser;
     localStorage.setItem("currentUser", currentUser);
-    document.getElementById("passwordInput").value = "";
-    
-    loadUserData();           // 進捗読み込み
-    renderSectionButtons();   // ★ここでボタンを強制的に描画！
-    showPage("sectionPage");  // 画面移動
+    loadUserData();
+    showPage("sectionPage");
   } else {
     alert("パスワードが違います");
   }
 };
 
-/* ===== ログアウト（確認ダイアログ付き） ===== */
 window.logout = function() {
-  // ここで確認ダイアログを表示
-  if (!confirm("ログアウトしてもよろしいですか？")) {
-    return; // 「キャンセル」が押されたら何もしない
-  }
-
+  if(!confirm("ログアウトしますか？")) return;
   localStorage.removeItem("currentUser");
   currentUser = null;
-  selectedUser = null;
   progress = {};
-  
-  // UIの初期化
-  document.getElementById("passwordInput").value = "";
-  document.getElementById("loginArea").classList.add("hidden");
-  
   showPage("userPage");
 };
-/* クイズロジック */
+
+/* ===== 学習ロジック ===== */
 function loadUserData() {
-  if(!currentUser) return;
   progress = JSON.parse(localStorage.getItem("progress_" + currentUser) || "{}");
-  updateProgressMini();
-  renderQuestion();
 }
 
-/* ===== 出題ロジック（セクション完全固定版） ===== */
 function getNextWord() {
-  // 1. まず「現在のセクション」に該当する単語の塊(20語)を特定する
-  let sectionWords = [];
-  
+  let pool = words;
   if (currentSection > 0) {
-    // セクション選択中（1, 2, 3...）
     const start = (currentSection - 1) * SECTION_SIZE;
-    const end = start + SECTION_SIZE;
-    sectionWords = words.slice(start, end);
-    console.log(`出題範囲を確認: Section ${currentSection} (${start}～${end-1})`);
-  } else {
-    // 全範囲（0）
-    sectionWords = words;
-    console.log("出題範囲を確認: 全範囲");
+    pool = words.slice(start, start + SECTION_SIZE);
   }
-
-  // 2. その塊(sectionWords)の中から、まだ正解していない単語を抽出する
-  const pool = sectionWords.filter(w => {
-    const key = w.word.toLowerCase();
-    const state = progress[key];
-
-    // 不正解のみモードがONなら、×がついているものだけ
-    if (wrongOnlyMode) {
-      return state === "wrong";
-    }
-    // 通常は、〇（correct）以外のものすべて
-    return state !== "correct";
-  });
-
-  // 3. 候補(pool)の中からランダムに1つ選ぶ
-  if (pool.length === 0) return null;
-  const randomIndex = Math.floor(Math.random() * pool.length);
-  return pool[randomIndex];
+  const filtered = pool.filter(w => progress[w.word.toLowerCase()] !== "correct");
+  return filtered.length ? filtered[Math.floor(Math.random() * filtered.length)] : null;
 }
 
 function renderQuestion() {
-  // getNextWord() は currentSection (20語制限) を考慮するように以前修正したものです
-  current = getNextWord(); 
+  current = getNextWord();
   lastJudge = null;
-
   const input = document.getElementById("answerInput");
   const resultArea = document.getElementById("resultArea");
 
-  // 単語がなくなった場合（そのセクションの未正解がゼロなど）
   if (!current) {
-    document.getElementById("meaning").textContent = "このセクションは学習完了！";
+    document.getElementById("meaning").textContent = "学習完了！";
     document.getElementById("exampleEn").textContent = "";
     document.getElementById("exampleJa").textContent = "";
-    document.getElementById("checkBtn").disabled = true;
     return;
   }
 
-  // 以下、表示のリセット処理...
   document.getElementById("meaning").textContent = current.meaning;
   document.getElementById("judge").textContent = "";
   document.getElementById("correctWord").textContent = "";
   document.getElementById("answerExample").textContent = "";
   document.getElementById("exampleEn").textContent = current.example || "";
   document.getElementById("exampleJa").textContent = current.exampleJa || "";
-  
   input.value = "";
   resultArea.className = "";
+  document.getElementById("checkBtn").classList.remove("hidden");
   document.getElementById("checkBtn").disabled = false;
   document.getElementById("nextBtn").classList.add("hidden");
-  document.getElementById("toggleBtn").classList.add("hidden");
 }
 
 document.getElementById("checkBtn").onclick = () => {
-  const inputVal = document.getElementById("answerInput").value.trim().toLowerCase();
-  const ok = inputVal === current.word.toLowerCase();
+  const val = document.getElementById("answerInput").value.trim().toLowerCase();
+  const ok = val === current.word.toLowerCase();
   lastJudge = ok ? "correct" : "wrong";
 
-  const resultArea = document.getElementById("resultArea");
-  document.getElementById("judge").textContent = ok ? "◎" : "✕";
-  resultArea.className = ok ? "correct" : "wrong";
+  const res = document.getElementById("resultArea");
+  const j = document.getElementById("judge");
+  j.textContent = ok ? "◎" : "✕";
+  j.className = ok ? "correct-text" : "wrong-text";
+  res.className = ok ? "correct" : "wrong";
+  
   document.getElementById("correctWord").textContent = "答え: " + current.word;
   if (current.example) {
     document.getElementById("answerExample").textContent = current.example.replace(/_+/g, current.word);
   }
 
-  document.getElementById("checkBtn").disabled = true;
+  document.getElementById("checkBtn").classList.add("hidden");
   document.getElementById("nextBtn").classList.remove("hidden");
 };
 
-
-
-/* 「次へ」ボタンの処理を上書き */
 document.getElementById("nextBtn").onclick = () => {
-  if (!current || !lastJudge) return;
-
-  // 1. 進捗を保存
   progress[current.word.toLowerCase()] = lastJudge;
   localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
-
-  // 2. ミニ進捗表示を更新
   updateProgressMini();
-
-  // 3. 次の問題を表示（ここで getNextWord が呼ばれ、セクション制限がかかる）
   renderQuestion();
 };
 
-window.goToQuiz = () => {
-  wrongOnlyMode = false;
-  showPage("quiz");
-  loadUserData();
+window.changeSection = function(val) {
+  currentSection = parseInt(val);
+  showPage("list");
 };
 
-window.enableWrongOnlyMode = () => {
-  wrongOnlyMode = true;
-  showPage("quiz");
-  renderQuestion();
-};
-
-window.resetProgress = () => {
-  if (!confirm("進捗データをリセットしますか？")) return;
-  progress = {};
-  localStorage.removeItem("progress_" + currentUser);
-  renderQuestion();
+window.changeListSection = function(val) {
+  currentSection = parseInt(val);
+  renderList();
   updateProgressMini();
 };
 
-/* ===== 進捗表示の更新（セクション対応版） ===== */
+window.goToQuizFromList = function() {
+  renderQuestion();
+  showPage("quiz");
+};
+
 function updateProgressMini() {
-  const displayElement = document.getElementById("progressMini");
-  if (!displayElement) return;
-
-  let targetWords = [];
-  let label = "";
-
-  // 1. カウント対象の単語を決定
-  if (currentSection > 0) {
-    // セクション選択時：そのセクションの20語だけを対象にする
-    const start = (currentSection - 1) * SECTION_SIZE;
-    const end = start + SECTION_SIZE;
-    targetWords = words.slice(start, end);
-    label = `Section ${currentSection}`;
-  } else {
-    // 全範囲時：すべての単語を対象にする
-    targetWords = words;
-    label = "全進捗";
-  }
-
-  // 2. 対象単語の中で、状態が "correct" になっているものをカウント
-  const total = targetWords.length;
-  const completed = targetWords.filter(w => {
-    const key = w.word.toLowerCase();
-    return progress[key] === "correct";
-  }).length;
-
-  // 3. 表示を更新（例：Section 1 完了：5 / 20）
-  displayElement.textContent = `${label} 完了：${completed} / ${total}`;
+  let pool = currentSection > 0 ? words.slice((currentSection-1)*SECTION_SIZE, (currentSection-1)*SECTION_SIZE + SECTION_SIZE) : words;
+  const done = pool.filter(w => progress[w.word.toLowerCase()] === "correct").length;
+  document.getElementById("progressMini").textContent = (currentSection > 0 ? `Section ${currentSection}` : "全範囲") + ` 完了: ${done} / ${pool.length}`;
 }
 
-/* 一覧表示 */
-/* ===== 一覧表示（セクション・フィルター対応版） ===== */
+/* ===== 一覧・ボタン生成 ===== */
+function renderSectionButtons() {
+  const container = document.getElementById("sectionContainer");
+  container.innerHTML = "";
+  const count = Math.ceil(words.length / SECTION_SIZE);
+  for (let i = 1; i <= count; i++) {
+    const btn = document.createElement("button");
+    btn.className = "section-btn";
+    btn.innerHTML = `Section ${i}<br><small>${(i-1)*SECTION_SIZE+1}～${Math.min(i*SECTION_SIZE, words.length)}</small>`;
+    btn.onclick = () => { currentSection = i; showPage("list"); };
+    container.appendChild(btn);
+  }
+}
+
 window.renderList = function() {
   const table = document.getElementById("wordTable");
   const filter = document.getElementById("filter").value;
-  
-  // テーブルのヘッダーを作成
   table.innerHTML = "<tr><th>No</th><th>単語</th><th>意味</th><th>状態</th></tr>";
 
-  // 1. 表示する単語の範囲を決定（セクション分け）
-  let displayWords = words;
-  let offset = 0; // 番号表示用のズレ
-  
+  let offset = 0;
+  let pool = words;
   if (currentSection > 0) {
     offset = (currentSection - 1) * SECTION_SIZE;
-    displayWords = words.slice(offset, offset + SECTION_SIZE);
+    pool = words.slice(offset, offset + SECTION_SIZE);
   }
 
-  // 2. 絞り込んだ単語をループで回して行を作成
-  /* --- 修正後の renderList 内のループ部分 --- */
-  displayWords.forEach((w, index) => {
-    const key = w.word.toLowerCase();
-    const state = progress[key];
+  pool.forEach((w, index) => {
+    const state = progress[w.word.toLowerCase()];
+    if (filter === "correct" && state !== "correct") return;
+    if (filter === "wrong" && state !== "wrong") return;
+    if (filter === "unanswered" && state !== undefined) return;
 
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="color:#999; font-size:11px;">${offset + index + 1}</td>
-      <td>${w.word}</td>
-      <td><div>${w.meaning}</div><div style="font-size:11px; color:#666;">${w.example ? w.example.replace(/_+/g, w.word) : ''}</div></td>
-      <td style="text-align:center;">${state === "correct" ? "〇" : state === "wrong" ? "×" : "-"}</td>
-    `;
-  
-    // ★重要：ここにあった tdStatus.onclick や tr.lastChild.onclick のブロックを完全に消去します。
-  
+    tr.innerHTML = `<td>${offset+index+1}</td><td><strong>${w.word}</strong></td><td>${w.meaning}<br><small style="color:#666">${w.example?w.example.replace(/_+/g,w.word):''}</small></td><td style="text-align:center">${state==='correct'?'〇':state==='wrong'?'×':'-'}</td>`;
     table.appendChild(tr);
   });
 };
 
-/* 一覧画面からクイズへ戻る処理 */
-window.goToQuizFromList = function() {
-  // 現在一覧で選んでいるセクション（currentSection）で問題を準備
-  renderQuestion();
-  // クイズ画面を表示
-  showPage("quiz");
-};
-  
-/* キーボード */
+/* ===== キーボード ===== */
 const layouts = {
   mobile: [["a","b","c","d","e","f","g","h","i"],["j","k","l","m","n","o","p","q","r"],["shift","s","t","u","v","w","x","y","z","del"]],
   qwerty: [["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["shift","z","x","c","v","b","n","m","del"]]
@@ -1019,13 +818,11 @@ function buildKeyboard() {
       const btn = document.createElement("button");
       if (key === "shift") {
         btn.textContent = "↑";
+        btn.style.background = upper ? "#ddd" : "#fff";
         btn.onclick = () => { upper = !upper; buildKeyboard(); };
       } else if (key === "del") {
         btn.textContent = "⌫";
-        btn.onclick = () => { 
-          const input = document.getElementById("answerInput");
-          input.value = input.value.slice(0, -1);
-        };
+        btn.onclick = () => { document.getElementById("answerInput").value = document.getElementById("answerInput").value.slice(0, -1); };
       } else {
         const char = upper ? key.toUpperCase() : key;
         btn.textContent = char;
@@ -1046,32 +843,18 @@ document.getElementById("keyboardSelect").onchange = (e) => {
   buildKeyboard();
 };
 
-/* 初期起動 */
+/* ===== 初期化 ===== */
 function init() {
-  renderUserList();
-  
-  // --- セクションプルダウンの自動生成ここから ---
   const listSelect = document.getElementById("listSectionSelect");
-  
-  if (listSelect) {
-    // 既存の「全単語を表示」以外を一旦クリア（二重生成防止）
-    listSelect.innerHTML = '<option value="0">全単語を表示</option>';
-    
-    // 単語数から必要なセクション数を計算
-    const sectionCount = Math.ceil(words.length / SECTION_SIZE);
-    
-    for (let i = 1; i <= sectionCount; i++) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      // 表示例： Section 1 (1～20)
-      const start = (i - 1) * SECTION_SIZE + 1;
-      const end = Math.min(i * SECTION_SIZE, words.length);
-      opt.textContent = `Section ${i} (${start}～${end})`;
-      listSelect.appendChild(opt);
-    }
+  const sectionCount = Math.ceil(words.length / SECTION_SIZE);
+  for (let i = 1; i <= sectionCount; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `Section ${i} (${(i-1)*SECTION_SIZE + 1}～${Math.min(i*SECTION_SIZE, words.length)})`;
+    listSelect.appendChild(opt);
   }
-  // --- セクションプルダウンの自動生成ここまで ---
-
+  
+  renderUserList();
   if (currentUser) {
     loadUserData();
     showPage("sectionPage");
@@ -1080,6 +863,7 @@ function init() {
   }
   buildKeyboard();
 }
+
 init();
 </script>
 </body>
