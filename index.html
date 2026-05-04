@@ -679,14 +679,35 @@ function loadUserData() {
   progress = JSON.parse(localStorage.getItem("progress_" + currentUser) || "{}");
 }
 
+/* ===== 出題ロジック（一周終わるまで再出題しない） ===== */
 function getNextWord() {
   let pool = words;
+  
+  // 1. セクションが選択されている場合は範囲を絞る
   if (currentSection > 0) {
     const start = (currentSection - 1) * SECTION_SIZE;
     pool = words.slice(start, start + SECTION_SIZE);
   }
-  const filtered = pool.filter(w => progress[w.word.toLowerCase()] !== "correct");
-  return filtered.length ? filtered[Math.floor(Math.random() * filtered.length)] : null;
+
+  // 2. 「まだ一度も解いていない単語（未出題）」を抽出
+  const unattempted = pool.filter(w => progress[w.word.toLowerCase()] === undefined);
+
+  if (unattempted.length > 0) {
+    // 未出題がある場合は、その中からランダムに出題
+    return unattempted[Math.floor(Math.random() * unattempted.length)];
+  }
+
+  // 3. 全て一度は解いた（未回答がなくなった）場合
+  // 「不正解（wrong）」が残っているか確認
+  const wrongPool = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
+
+  if (wrongPool.length > 0) {
+    // 不正解が残っていれば、その中から出題（二周目開始）
+    return wrongPool[Math.floor(Math.random() * wrongPool.length)];
+  }
+
+  // 4. 全て正解（correct）になった場合
+  return null;
 }
 
 function renderQuestion() {
