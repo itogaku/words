@@ -775,6 +775,22 @@ function getNextWord() {
   return null;
 }
 
+window.goToQuizFromList = function() {
+  // 1. 復習モードをオフにする（通常のセクション学習に切り替え）
+  isReviewMode = false;
+  reviewPool = [];
+  
+  // 2. 問題をセットする
+  renderQuestion();
+  
+  // 3. 画面を切り替える
+  showPage("quiz");
+  
+  // 4. (任意) 入力欄にフォーカスを当てる（スマホ等でキーボードを出しやすくするため）
+  const input = document.getElementById("answerInput");
+  if (input) input.focus();
+};
+  
 function renderQuestion() {
   current = getNextWord();
   if (!current) {
