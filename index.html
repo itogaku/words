@@ -593,30 +593,56 @@ function startReviewTest() {
   reviewPool = [];
   reviewWrongWords = [];
 
-  // 前回(A), 前々回(B), 過去(C) の範囲を計算
-  const idxA = Math.max(0, (currentSection - 2) * 20);
-  const idxB = Math.max(0, (currentSection - 3) * 20);
-  
-  const poolA = words.slice(idxA, Math.max(0, (currentSection - 1) * 20));
-  const poolB = words.slice(idxB, idxA);
-  const poolC = words.slice(0, idxB);
+  // --- セクションに応じた出題ロジック ---
 
-  // 指定の比率で抽出
-  const selectedA = shuffle([...poolA]).slice(0, 5);
-  const selectedB = shuffle([...poolB]).slice(0, 3);
-  const selectedC = shuffle([...poolC]).slice(0, 2);
+  if (currentSection <= 1) {
+    // 【Section 1 のとき】 復習対象がないのでスキップ
+    isReviewMode = false;
+    alert("最初のセクションです。暗記からスタートしましょう！");
+    showPage("list");
+    return; // ここで終了
+  } 
+  else if (currentSection === 2) {
+    // 【Section 2 のとき】 Section 1 から全10問出題
+    const pool1 = words.slice(0, 20);
+    reviewPool = shuffle([...pool1]).slice(0, 10);
+  } 
+  else if (currentSection === 3) {
+    // 【Section 3 のとき】 Section 1 から5問、Section 2 から5問
+    const pool1 = words.slice(0, 20);
+    const pool2 = words.slice(20, 40);
+    reviewPool = [
+      ...shuffle([...pool1]).slice(0, 5),
+      ...shuffle([...pool2]).slice(0, 5)
+    ];
+  } 
+  else {
+    // 【Section 4 以降】 前回5問、前々回3問、それ以前2問
+    const idxPrev1 = (currentSection - 2) * 20;
+    const idxPrev2 = (currentSection - 3) * 20;
 
-  reviewPool = [...selectedA, ...selectedB, ...selectedC];
+    const poolPrev1 = words.slice(idxPrev1, idxPrev1 + 20); // 前回
+    const poolPrev2 = words.slice(idxPrev2, idxPrev2 + 20); // 前々回
+    const poolOthers = words.slice(0, idxPrev2);           // それ以前
 
-  // 10問に満たない場合は、全単語から補填
-  if (reviewPool.length < 10) {
-    const others = words.filter(w => !reviewPool.includes(w));
-    reviewPool.push(...shuffle(others).slice(0, 10 - reviewPool.length));
+    reviewPool = [
+      ...shuffle([...poolPrev1]).slice(0, 5),
+      ...shuffle([...poolPrev2]).slice(0, 3),
+      ...shuffle([...poolOthers]).slice(0, 2)
+    ];
+
+    // 万が一10問に足りない場合は、過去全体から補充
+    if (reviewPool.length < 10) {
+      const allPast = words.slice(0, (currentSection - 1) * 20);
+      const extra = allPast.filter(w => !reviewPool.includes(w));
+      reviewPool.push(...shuffle(extra).slice(0, 10 - reviewPool.length));
+    }
   }
 
+  // 10問をシャッフルして出題
   reviewPool = shuffle(reviewPool);
-  alert("まずは10問の復習テストからスタート！");
-  renderQuestion(); // 出題開始
+  alert(`復習テスト（10問）を開始します。`);
+  renderQuestion();
   showPage("quiz");
 }
   
