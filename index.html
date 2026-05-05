@@ -773,6 +773,34 @@ window.renderList = function() {
 };
 
 /* ===== 6. ユーザー・画面管理（基本機能） ===== */
+// 生徒一覧を画面に描画する
+function renderUserList() {
+  const container = document.getElementById("userList");
+  if (!container) return;
+
+  container.innerHTML = "";
+  let users = JSON.parse(localStorage.getItem("users") || "{}");
+  const userNames = Object.keys(users);
+
+  if (userNames.length === 0) {
+    container.innerHTML = "<p style='color:#999; font-size:13px;'>生徒が登録されていません</p>";
+    return;
+  }
+
+  userNames.forEach(name => {
+    const div = document.createElement("div");
+    div.className = "user-item";
+    div.innerHTML = `
+      <span>${name}</span>
+      <div>
+        <button onclick="selectUser('${name}')">選択</button>
+        <button class="btn-delete" onclick="deleteUser('${name}')">削除</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+  
 window.login = function() {
     const pass = document.getElementById("passwordInput").value;
     let users = JSON.parse(localStorage.getItem("users") || "{}");
@@ -784,6 +812,30 @@ window.login = function() {
     } else { alert("パスワードが違います"); }
 };
 
+window.addUser = function() {
+  const name = document.getElementById("newName").value.trim();
+  const pass = document.getElementById("newPass").value.trim();
+  if(!name || !pass) return alert("名前とパスワードを入力してください");
+  
+  let users = JSON.parse(localStorage.getItem("users") || "{}");
+  users[name] = pass;
+  localStorage.setItem("users", JSON.stringify(users));
+  
+  document.getElementById("newName").value = "";
+  document.getElementById("newPass").value = "";
+  renderUserList(); // 再描画
+};
+
+// 生徒を削除する
+window.deleteUser = function(name) {
+  if(!confirm(`「${name}」のデータを完全に削除しますか？`)) return;
+  let users = JSON.parse(localStorage.getItem("users") || "{}");
+  delete users[name];
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.removeItem("progress_" + name);
+  renderUserList(); // 再描画
+};
+  
 window.goToQuizFromList = function() {
     isReviewMode = false;
     isWrongOnlyMode = false;
@@ -811,7 +863,31 @@ window.showPage = (id) => {
 };
 
 function init() {
-    renderUserList();
-    if(currentUser) { loadUserData(); showPage("sectionPage"); }
+  // 1. 生徒一覧を出す（これが無いと名前が消えます）
+  renderUserList();
+
+  // 2. セクション選択肢（プルダウン）の生成
+  const listSelect = document.getElementById("listSectionSelect");
+  if (listSelect) {
+    listSelect.innerHTML = '<option value="0">全単語を表示</option>';
+    const sectionCount = Math.ceil(words.length / SECTION_SIZE);
+    for (let i = 1; i <= sectionCount; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `Section ${i} (${(i-1)*SECTION_SIZE + 1}～${Math.min(i*SECTION_SIZE, words.length)})`;
+      listSelect.appendChild(opt);
+    }
+  }
+
+  // 3. ログイン状態の復元
+  if (currentUser) {
+    loadUserData();
+    showPage("sectionPage");
+  } else {
+    showPage("userPage");
+  }
+
+  // 4. キーボード生成
+  if (typeof buildKeyboard === "function") buildKeyboard();
 }
 init();
