@@ -584,6 +584,62 @@ let currentUser = localStorage.getItem("currentUser");
 let selectedUser = null;
 let upper = false;
 
+let reviewPool = [];
+let isReviewMode = false;
+
+function startReviewTest() {
+  isReviewMode = true;
+  reviewPool = [];
+  
+  // A: 前回 (currentSection-1) から5問
+  const prev1 = words.slice(Math.max(0, (currentSection-2)*20), Math.max(0, (currentSection-1)*20));
+  reviewPool.push(...shuffle(prev1).slice(0, 5));
+
+  // B: 前々回 (currentSection-2) から3問
+  const prev2 = words.slice(Math.max(0, (currentSection-3)*20), Math.max(0, (currentSection-2)*20));
+  reviewPool.push(...shuffle(prev2).slice(0, 3));
+
+  // C: それ以前 から2問
+  const others = words.slice(0, Math.max(0, (currentSection-3)*20));
+  reviewPool.push(...shuffle(others).slice(0, 2));
+
+  // 足りない分を補填（学習初期など）
+  if (reviewPool.length < 10) {
+    const extra = words.filter(w => !reviewPool.includes(w));
+    reviewPool.push(...shuffle(extra).slice(0, 10 - reviewPool.length));
+  }
+
+  reviewPool = shuffle(reviewPool); // 10問を混ぜる
+  renderReviewQuestion();
+  showPage("quiz");
+}
+
+let reviewWrongWords = []; // 復習で間違えた単語をストック
+
+function renderReviewQuestion() {
+  if (reviewPool.length === 0) {
+    // 復習テスト終了！
+    isReviewMode = false;
+    finishReviewAndShowDailyList();
+    return;
+  }
+  current = reviewPool.pop();
+  // ... (通常のrenderQuestionと同じ表示処理) ...
+}
+
+function finishReviewAndShowDailyList() {
+  alert("復習テスト完了！今日の学習内容を確認しましょう。");
+  
+  // 今日のメインセクション（未着手の最新など）を特定
+  // currentSection = (進捗から自動計算するロジックをここに入れる)
+  
+  showPage("list"); // 一覧画面へ移動
+}
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+  
 /* ===== 画面表示制御 ===== */
 window.showPage = function(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
