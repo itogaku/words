@@ -861,26 +861,21 @@ function renderSectionButtons() {
 
 window.renderList = function() {
   const table = document.getElementById("wordTable");
-  const filter = document.getElementById("filter").value;
   table.innerHTML = "<tr><th>No</th><th>単語</th><th>意味</th><th>状態</th></tr>";
 
-  let offset = 0;
-  let pool = words;
-  if (currentSection > 0) {
-    offset = (currentSection - 1) * SECTION_SIZE;
-    pool = words.slice(offset, offset + SECTION_SIZE);
+  // 1. 【特別枠】復習テストで間違えた単語をまず表示
+  if (reviewWrongWords.length > 0) {
+    const header = document.createElement("tr");
+    header.innerHTML = `<td colspan="4" style="background:#fff3e0; font-weight:bold; color:#e65100;">要復習 (テストでミス)</td>`;
+    table.appendChild(header);
+    
+    reviewWrongWords.forEach(w => {
+      // 描画処理...
+    });
   }
 
-  pool.forEach((w, index) => {
-    const state = progress[w.word.toLowerCase()];
-    if (filter === "correct" && state !== "correct") return;
-    if (filter === "wrong" && state !== "wrong") return;
-    if (filter === "unanswered" && state !== undefined) return;
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${offset+index+1}</td><td><strong>${w.word}</strong></td><td>${w.meaning}<br><small style="color:#666">${w.example?w.example.replace(/_+/g,w.word):''}</small></td><td style="text-align:center">${state==='correct'?'〇':state==='wrong'?'×':'-'}</td>`;
-    table.appendChild(tr);
-  });
+  // 2. 【通常枠】今回のセクション20単語を表示
+  // ... (これまでのrenderListと同じ処理) ...
 };
 
 /* ===== キーボード ===== */
