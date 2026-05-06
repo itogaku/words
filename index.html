@@ -606,28 +606,20 @@ function startReviewTest() {
         return;
     }
 
-    // 出題範囲の計算
     const idxPrev1 = (currentSection - 2) * SECTION_SIZE;
     const idxPrev2 = (currentSection - 3) * SECTION_SIZE;
-    
     const poolPrev1 = words.slice(idxPrev1, idxPrev1 + SECTION_SIZE);
     const poolPrev2 = words.slice(Math.max(0, idxPrev2), Math.max(0, idxPrev1));
     const poolOthers = words.slice(0, Math.max(0, idxPrev2));
 
-    // セクションに応じた比率で抽出
     if (currentSection === 2) {
         reviewPool = shuffle([...poolPrev1]).slice(0, 10);
     } else if (currentSection === 3) {
         reviewPool = [...shuffle([...poolPrev1]).slice(0, 5), ...shuffle([...poolPrev2]).slice(0, 5)];
     } else {
-        reviewPool = [
-            ...shuffle([...poolPrev1]).slice(0, 5),
-            ...shuffle([...poolPrev2]).slice(0, 3),
-            ...shuffle([...poolOthers]).slice(0, 2)
-        ];
+        reviewPool = [...shuffle([...poolPrev1]).slice(0, 5), ...shuffle([...poolPrev2]).slice(0, 3), ...shuffle([...poolOthers]).slice(0, 2)];
     }
 
-    // 10問に満たない場合の補填
     if (reviewPool.length < 10) {
         const extra = words.slice(0, (currentSection - 1) * SECTION_SIZE).filter(w => !reviewPool.includes(w));
         reviewPool.push(...shuffle(extra).slice(0, 10 - reviewPool.length));
@@ -639,39 +631,24 @@ function startReviewTest() {
     showPage("quiz");
 }
 
-/* ===== 3. 出題核心ロジック ===== */
+/* ===== 3. 出題・判定ロジック ===== */
 function getNextWord() {
-    // A. ログイン直後の復習テストモード
-    if (isReviewMode) {
-        return reviewPool.length > 0 ? reviewPool.pop() : null;
-    }
-
-    // B. 通常・間違い直しモードの対象範囲
+    if (isReviewMode) return reviewPool.length > 0 ? reviewPool.pop() : null;
     let pool = words.slice((currentSection - 1) * SECTION_SIZE, currentSection * SECTION_SIZE);
-
     if (isWrongOnlyMode) {
-        // 間違えた単語のみ（シャッフルして出す）
         const wrongOnes = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
         return wrongOnes.length > 0 ? wrongOnes[Math.floor(Math.random() * wrongOnes.length)] : null;
     } else {
-        // 全問モード：未解答優先 -> 不正解の順
         const unattempted = pool.filter(w => progress[w.word.toLowerCase()] === undefined);
         if (unattempted.length > 0) return unattempted[Math.floor(Math.random() * unattempted.length)];
-        
         const wrongs = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
-        if (wrongs.length > 0) return wrongs[Math.floor(Math.random() * wrongs.length)];
-        
-        return null; // 全て正解済み
+        return wrongs.length > 0 ? wrongs[Math.floor(Math.random() * wrongs.length)] : null;
     }
 }
 
 function renderQuestion() {
     current = getNextWord();
-    if (!current) {
-        showTestResult(); // テスト終了時は結果画面へ
-        return;
-    }
-
+    if (!current) { showTestResult(); return; }
     document.getElementById("meaning").textContent = current.meaning;
     document.getElementById("exampleEn").textContent = current.example || "";
     document.getElementById("exampleJa").textContent = current.exampleJa || "";
@@ -683,124 +660,91 @@ function renderQuestion() {
     document.getElementById("nextBtn").classList.add("hidden");
 }
 
-/* ===== 4. 回答判定と結果表示 ===== */
 document.getElementById("checkBtn").onclick = () => {
     const val = document.getElementById("answerInput").value.trim().toLowerCase();
     const ok = val === current.word.toLowerCase();
     const status = ok ? "correct" : "wrong";
-
-    // ログに記録
     testLog.push({ word: current.word, meaning: current.meaning, status: status });
-
-    // 復習テスト中のミスを記録
-    if (isReviewMode && !ok) {
-        if (!reviewWrongWords.find(w => w.word === current.word)) reviewWrongWords.push(current);
-    }
-
-    // 進捗保存
+    if (isReviewMode && !ok && !reviewWrongWords.find(w => w.word === current.word)) reviewWrongWords.push(current);
     progress[current.word.toLowerCase()] = status;
     localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
-
-    // 画面表示
+    
     const j = document.getElementById("judge");
     j.textContent = ok ? "◎" : "✕";
     j.className = ok ? "correct-text" : "wrong-text";
     document.getElementById("resultArea").className = ok ? "correct" : "wrong";
     document.getElementById("correctWord").textContent = "答え: " + current.word;
-    
     document.getElementById("checkBtn").classList.add("hidden");
     document.getElementById("nextBtn").classList.remove("hidden");
     updateProgressMini();
 };
 
+document.getElementById("nextBtn").onclick = () => renderQuestion();
+
 function showTestResult() {
     const correctCount = testLog.filter(i => i.status === "correct").length;
     let html = `<h3>テスト結果</h3><p style="font-size:20px; font-weight:bold;">${testLog.length}問中 ${correctCount}問 正解！</p>`;
-    html += `<div class="result-list"><table>`;
+    html += `<div class="result-list"><table style="width:100%">`;
     testLog.forEach(i => {
-        html += `<tr class="${i.status}"><td>${i.status==='correct'?'○':'×'}</td><td><b>${i.word}</b></td><td>${i.meaning}</td></tr>`;
+        html += `<tr style="background:${i.status==='correct'?'#e8f5e9':'#ffebee'}"><td>${i.status==='correct'?'○':'×'}</td><td><b>${i.word}</b></td><td>${i.meaning}</td></tr>`;
     });
     html += `</table></div><button onclick="exitToList()" class="btn-primary">一覧に戻る</button>`;
-    
-    const card = document.querySelector("#quiz .card");
-    card.innerHTML = html;
+    document.querySelector("#quiz .card").innerHTML = html;
 }
 
 window.exitToList = function() {
-    // 不正解が1つでもあれば「間違えた問題のみ表示」モードへ
     isWrongOnlyMode = testLog.some(i => i.status === "wrong");
     isReviewMode = false;
     testLog = [];
-    // クイズ画面を元に戻すために再描画を予約
-    location.reload(); // 最も確実なリセット方法。嫌な場合は card.innerHTML を元の形に戻す関数を呼ぶ。
-    showPage("list");
+    location.reload(); // 画面リセットのためリロード推奨
 };
 
-/* ===== 5. 一覧表示制御 ===== */
-window.renderList = function() {
-    const table = document.getElementById("wordTable");
-    table.innerHTML = "<tr><th>No</th><th>単語</th><th>意味</th><th>状態</th></tr>";
-
-    // 復習ミスの表示
-    if (reviewWrongWords.length > 0) {
-        let head = `<tr><td colspan="4" class="review-header">要復習（先ほどのミス）</td></tr>`;
-        table.innerHTML += head;
-        reviewWrongWords.forEach(w => {
-            table.innerHTML += `<tr class="wrong"><td>!</td><td><b>${w.word}</b></td><td>${w.meaning}</td><td>×</td></tr>`;
-        });
-    }
-
-    let offset = (currentSection - 1) * SECTION_SIZE;
-    let pool = words.slice(offset, offset + SECTION_SIZE);
-
-    // モードによるフィルタ
-    if (isWrongOnlyMode) {
-        pool = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
-    }
-
-    pool.forEach((w, i) => {
-        const s = progress[w.word.toLowerCase()];
-        table.innerHTML += `<tr><td>${offset+i+1}</td><td><b>${w.word}</b></td><td>${w.meaning}</td><td>${s==='correct'?'○':s==='wrong'?'×':'-'}</td></tr>`;
-    });
-
-    // ボタン切り替え
-    const wrongBtn = document.getElementById("startWrongQuizBtn");
-    if (wrongBtn) {
-        const wrongCount = words.slice(offset, offset + SECTION_SIZE).filter(w => progress[w.word.toLowerCase()] === "wrong").length;
-        wrongBtn.style.display = wrongCount > 0 ? "inline-block" : "none";
-        wrongBtn.textContent = `間違えた${wrongCount}問を解き直す`;
-    }
-};
-
-/* ===== 6. ユーザー・画面管理（基本機能） ===== */
-// 生徒一覧を画面に描画する
+/* ===== 4. ユーザー管理機能 (復活) ===== */
 function renderUserList() {
-  const container = document.getElementById("userList");
-  if (!container) return;
-
-  container.innerHTML = "";
-  let users = JSON.parse(localStorage.getItem("users") || "{}");
-  const userNames = Object.keys(users);
-
-  if (userNames.length === 0) {
-    container.innerHTML = "<p style='color:#999; font-size:13px;'>生徒が登録されていません</p>";
-    return;
-  }
-
-  userNames.forEach(name => {
-    const div = document.createElement("div");
-    div.className = "user-item";
-    div.innerHTML = `
-      <span>${name}</span>
-      <div>
-        <button onclick="selectUser('${name}')">選択</button>
-        <button class="btn-delete" onclick="deleteUser('${name}')">削除</button>
-      </div>
-    `;
-    container.appendChild(div);
-  });
+    const container = document.getElementById("userList");
+    if (!container) return;
+    container.innerHTML = "";
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    const userNames = Object.keys(users);
+    if (userNames.length === 0) {
+        container.innerHTML = "<p style='color:#999; font-size:13px;'>生徒が登録されていません</p>";
+        return;
+    }
+    userNames.forEach(name => {
+        const div = document.createElement("div");
+        div.className = "user-item";
+        div.innerHTML = `<span>${name}</span><div><button onclick="selectUser('${name}')">選択</button><button class="btn-delete" onclick="deleteUser('${name}')">削除</button></div>`;
+        container.appendChild(div);
+    });
 }
-  
+
+window.addUser = function() {
+    const name = document.getElementById("newName").value.trim();
+    const pass = document.getElementById("newPass").value.trim();
+    if(!name || !pass) return alert("名前とパスワードを入力してください");
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    users[name] = pass;
+    localStorage.setItem("users", JSON.stringify(users));
+    document.getElementById("newName").value = "";
+    document.getElementById("newPass").value = "";
+    renderUserList();
+};
+
+window.deleteUser = function(name) {
+    if(!confirm(`「${name}」のデータを完全に削除しますか？`)) return;
+    let users = JSON.parse(localStorage.getItem("users") || "{}");
+    delete users[name];
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.removeItem("progress_" + name);
+    renderUserList();
+};
+
+window.selectUser = (n) => {
+    selectedUser = n;
+    document.getElementById("selectedUserName").textContent = n;
+    document.getElementById("loginArea").classList.remove("hidden");
+};
+
 window.login = function() {
     const pass = document.getElementById("passwordInput").value;
     let users = JSON.parse(localStorage.getItem("users") || "{}");
@@ -812,82 +756,66 @@ window.login = function() {
     } else { alert("パスワードが違います"); }
 };
 
-window.addUser = function() {
-  const name = document.getElementById("newName").value.trim();
-  const pass = document.getElementById("newPass").value.trim();
-  if(!name || !pass) return alert("名前とパスワードを入力してください");
-  
-  let users = JSON.parse(localStorage.getItem("users") || "{}");
-  users[name] = pass;
-  localStorage.setItem("users", JSON.stringify(users));
-  
-  document.getElementById("newName").value = "";
-  document.getElementById("newPass").value = "";
-  renderUserList(); // 再描画
+/* ===== 5. 一覧表示・補助機能 ===== */
+window.renderList = function() {
+    const table = document.getElementById("wordTable");
+    table.innerHTML = "<tr><th>No</th><th>単語</th><th>意味</th><th>状態</th></tr>";
+    if (reviewWrongWords.length > 0) {
+        table.innerHTML += `<tr><td colspan="4" style="background:#fff3e0; color:#e65100; font-weight:bold; text-align:center;">要復習（先ほどのミス）</td></tr>`;
+        reviewWrongWords.forEach(w => {
+            table.innerHTML += `<tr style="background:#fff9f0"><td>!</td><td><b>${w.word}</b></td><td>${w.meaning}</td><td>×</td></tr>`;
+        });
+    }
+    let offset = (currentSection - 1) * SECTION_SIZE;
+    let pool = words.slice(offset, offset + SECTION_SIZE);
+    if (isWrongOnlyMode) pool = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
+    pool.forEach((w, i) => {
+        const s = progress[w.word.toLowerCase()];
+        table.innerHTML += `<tr><td>${offset+i+1}</td><td><b>${w.word}</b></td><td>${w.meaning}</td><td style="text-align:center;">${s==='correct'?'○':s==='wrong'?'×':'-'}</td></tr>`;
+    });
+    const wrongBtn = document.getElementById("startWrongQuizBtn");
+    if (wrongBtn) {
+        const wrongCount = words.slice(offset, offset + SECTION_SIZE).filter(w => progress[w.word.toLowerCase()] === "wrong").length;
+        wrongBtn.style.display = (wrongCount > 0) ? "inline-block" : "none";
+        wrongBtn.textContent = `間違えた${wrongCount}問を解き直す`;
+    }
 };
 
-// 生徒を削除する
-window.deleteUser = function(name) {
-  if(!confirm(`「${name}」のデータを完全に削除しますか？`)) return;
-  let users = JSON.parse(localStorage.getItem("users") || "{}");
-  delete users[name];
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.removeItem("progress_" + name);
-  renderUserList(); // 再描画
-};
-  
-window.goToQuizFromList = function() {
-    isReviewMode = false;
-    isWrongOnlyMode = false;
-    testLog = [];
-    renderQuestion();
-    showPage("quiz");
-};
+function updateProgressMini() {
+    let pool = words.slice((currentSection-1)*SECTION_SIZE, (currentSection-1)*SECTION_SIZE + SECTION_SIZE);
+    const done = pool.filter(w => progress[w.word.toLowerCase()] === "correct").length;
+    document.getElementById("progressMini").textContent = `Section ${currentSection} 完了: ${done} / ${pool.length}`;
+}
 
-window.startWrongOnlyTest = function() {
-    isReviewMode = false;
-    isWrongOnlyMode = true;
-    testLog = [];
-    renderQuestion();
-    showPage("quiz");
-};
-
-// --- 以下、補助関数 (shuffle, init, etc.) ---
+window.goToQuizFromList = function() { isReviewMode = false; isWrongOnlyMode = false; testLog = []; renderQuestion(); showPage("quiz"); };
+window.startWrongOnlyTest = function() { isReviewMode = false; isWrongOnlyMode = true; testLog = []; renderQuestion(); showPage("quiz"); };
 function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
 function loadUserData() { progress = JSON.parse(localStorage.getItem("progress_" + currentUser) || "{}"); }
-window.selectUser = (n) => { selectedUser = n; document.getElementById("selectedUserName").textContent = n; document.getElementById("loginArea").classList.remove("hidden"); };
-function updateProgressMini() { /* 既存のミニ進捗更新 */ }
 window.showPage = (id) => { 
     document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === id));
     if(id === "list") renderList();
 };
 
+/* ===== 6. 初期化 ===== */
 function init() {
-  // 1. 生徒一覧を出す（これが無いと名前が消えます）
-  renderUserList();
-
-  // 2. セクション選択肢（プルダウン）の生成
-  const listSelect = document.getElementById("listSectionSelect");
-  if (listSelect) {
-    listSelect.innerHTML = '<option value="0">全単語を表示</option>';
-    const sectionCount = Math.ceil(words.length / SECTION_SIZE);
-    for (let i = 1; i <= sectionCount; i++) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = `Section ${i} (${(i-1)*SECTION_SIZE + 1}～${Math.min(i*SECTION_SIZE, words.length)})`;
-      listSelect.appendChild(opt);
+    renderUserList();
+    const listSelect = document.getElementById("listSectionSelect");
+    if (listSelect) {
+        listSelect.innerHTML = '<option value="0">全単語を表示</option>';
+        const sectionCount = Math.ceil(words.length / SECTION_SIZE);
+        for (let i = 1; i <= sectionCount; i++) {
+            const opt = document.createElement("option");
+            opt.value = i;
+            opt.textContent = `Section ${i}`;
+            listSelect.appendChild(opt);
+        }
     }
-  }
-
-  // 3. ログイン状態の復元
-  if (currentUser) {
-    loadUserData();
-    showPage("sectionPage");
-  } else {
-    showPage("userPage");
-  }
-
-  // 4. キーボード生成
-  if (typeof buildKeyboard === "function") buildKeyboard();
+    if (currentUser) { loadUserData(); showPage("sectionPage"); }
+    else { showPage("userPage"); }
+    if (typeof buildKeyboard === "function") buildKeyboard();
 }
+
 init();
+</script>
+</body>
+</html>
