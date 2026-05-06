@@ -584,7 +584,9 @@ let currentLayout = localStorage.getItem("keyboardLayout") || "mobile";
 let currentUser = localStorage.getItem("currentUser");
 let selectedUser = null;
 let upper = false;
-
+let testLog = []; // 出題順の記録用
+let isWrongOnlyMode = false; // 「間違えた問題のみ」モードのフラグ
+  
 /* ===== 画面表示制御 ===== */
 window.showPage = function(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -741,7 +743,14 @@ document.getElementById("checkBtn").onclick = () => {
   const val = document.getElementById("answerInput").value.trim().toLowerCase();
   const ok = val === current.word.toLowerCase();
   lastJudge = ok ? "correct" : "wrong";
-
+　
+// 出題ログを記録（表示用）
+  testLog.push({
+    word: current.word,
+    meaning: current.meaning,
+    status: lastJudge
+  });
+  
   // --- ★ここから追加：判定直後に進捗を保存する ---
   progress[current.word.toLowerCase()] = lastJudge;
   localStorage.setItem("progress_" + currentUser, JSON.stringify(progress));
@@ -790,6 +799,48 @@ function updateProgressMini() {
   document.getElementById("progressMini").textContent = (currentSection > 0 ? `Section ${currentSection}` : "全範囲") + ` 完了: ${done} / ${pool.length}`;
 }
 
+function showTestResult() {
+  const correctCount = testLog.filter(item => item.status === "correct").length;
+  const totalCount = testLog.length;
+
+  // 結果表示用のHTMLを組み立て（quizページ内の要素を書き換えるか、モーダルを出す）
+  let html = `<h3>テスト結果</h3>`;
+  html += `<p style="font-size:20px; font-weight:bold;">${totalCount}問中 ${correctCount}問 正解！</p>`;
+  html += `<div style="max-height:300px; overflow-y:auto; border:1px solid #ccc; margin:10px 0;">`;
+  html += `<table style="width:100%; border-collapse:collapse;">`;
+  
+  testLog.forEach(item => {
+    const color = item.status === "correct" ? "#e8f5e9" : "#ffebee";
+    const mark = item.status === "correct" ? "〇" : "×";
+    html += `<tr style="background:${color}; border-bottom:1px solid #eee;">
+               <td style="padding:8px;">${mark}</td>
+               <td style="padding:8px;"><strong>${item.word}</strong></td>
+               <td style="padding:8px;">${item.meaning}</td>
+             </tr>`;
+  });
+  html += `</table></div>`;
+  html += `<button onclick="exitToListView()" class="btn-primary">一覧に戻る</button>`;
+
+  // quiz画面のメインエリアを一時的に結果表示に差し替える
+  const mainArea = document.querySelector("#quiz .card"); 
+  mainArea.innerHTML = html;
+}
+
+// 一覧に戻る時の処理
+window.exitToListView = function() {
+  // 不正解がある場合のみ、一覧を「不正解のみ表示」にする
+  const hasWrong = testLog.some(item => item.status === "wrong");
+  if (hasWrong) {
+    isWrongOnlyMode = true;
+  } else {
+    isWrongOnlyMode = false;
+  }
+  
+  // ログをリセットして一覧へ
+  testLog = [];
+  showPage("list");
+};
+  
 /* ===== 一覧・ボタン生成 ===== */
 function renderSectionButtons() {
   const container = document.getElementById("sectionContainer");
@@ -806,28 +857,68 @@ function renderSectionButtons() {
 
 window.renderList = function() {
   const table = document.getElementById("wordTable");
-  const filter = document.getElementById("filter").value;
   table.innerHTML = "<tr><th>No</th><th>単語</th><th>意味</th><th>状態</th></tr>";
 
-  let offset = 0;
-  let pool = words;
-  if (currentSection > 0) {
-    offset = (currentSection - 1) * SECTION_SIZE;
-    pool = words.slice(offset, offset + SECTION_SIZE);
+  let offset = (currentSection - 1) * 20;
+  let pool = words.slice(offset, offset + 20);
+
+  // モードに応じて表示する単語を絞り込む
+  if (isWrongOnlyMode) {
+    pool = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
   }
 
-  pool.forEach((w, index) => {
-    const state = progress[w.word.toLowerCase()];
-    if (filter === "correct" && state !== "correct") return;
-    if (filter === "wrong" && state !== "wrong") return;
-    if (filter === "unanswered" && state !== undefined) return;
+  // ... (以下、ループでテーブルを描画する処理) ...
+  
+  // ボタンの表示制御（HTML側にボタンを2つ作っておく）
+  const normalBtn = document.getElementById("startQuizBtn");
+  const wrongBtn = document.getElementById("startWrongQuizBtn"); // 新設
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${offset+index+1}</td><td><strong>${w.word}</strong></td><td>${w.meaning}<br><small style="color:#666">${w.example?w.example.replace(/_+/g,w.word):''}</small></td><td style="text-align:center">${state==='correct'?'〇':state==='wrong'?'×':'-'}</td>`;
-    table.appendChild(tr);
-  });
+  if (isWrongOnlyMode && pool.length > 0) {
+    normalBtn.style.display = "inline-block";
+    wrongBtn.style.display = "inline-block";
+    wrongBtn.textContent = `間違えた${pool.length}問を解き直す`;
+  } else {
+    normalBtn.style.display = "inline-block";
+    if (wrongBtn) wrongBtn.style.display = "none";
+    isWrongOnlyMode = false; // 不正解がなくなれば自動解除
+  }
 };
 
+// 「間違い直しテスト」ボタン用の関数
+window.startWrongOnlyTest = function() {
+  isWrongOnlyMode = true;
+  testLog = [];
+  renderQuestion();
+  showPage("quiz");
+};
+
+// 「全問題テスト」ボタン用の関数（既存のボタンに割り当て）
+window.goToQuizFromList = function() {
+  isWrongOnlyMode = false; // 全問モードにリセット
+  testLog = [];
+  renderQuestion();
+  showPage("quiz");
+};
+
+// 出題ロジックの修正
+function getNextWord() {
+  // ... (復習モードのロジックはそのまま) ...
+
+  let pool = words.slice((currentSection - 1) * 20, currentSection * 20);
+
+  if (isWrongOnlyMode) {
+    // 「間違えた問題のみ」モード：進捗が "wrong" のものだけ出す
+    const wrongOnes = pool.filter(w => progress[w.word.toLowerCase()] === "wrong");
+    if (wrongOnes.length > 0) {
+      return wrongOnes[Math.floor(Math.random() * wrongOnes.length)];
+    }
+    return null; // 全部消えたら終了
+  }
+
+  // 通常モード（全問出題、一周終わるまで）
+  // ... (以前作った unattempted 優先のロジック) ...
+}
+  
 /* ===== キーボード ===== */
 const layouts = {
   mobile: [["a","b","c","d","e","f","g","h","i"],["j","k","l","m","n","o","p","q","r"],["shift","s","t","u","v","w","x","y","z","del"]],
